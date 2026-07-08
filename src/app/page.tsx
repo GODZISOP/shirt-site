@@ -5,6 +5,9 @@ import ProductCategories from "@/components/ProductCategories";
 import BrandLogos from "@/components/BrandLogos";
 import CustomerPhotos from "@/components/CustomerPhotos";
 import Testimonials from "@/components/Testimonials";
+import OurPromise from "@/components/OurPromise";
+import FAQ from "@/components/FAQ";
+import SupportSection from "@/components/SupportSection";
 import Footer from "@/components/Footer";
 
 export default function Home() {
@@ -18,6 +21,9 @@ export default function Home() {
         <BrandLogos />
         <CustomerPhotos />
         <Testimonials />
+        <OurPromise />
+        <FAQ />
+        <SupportSection />
       </main>
       <Footer />
     </div>
