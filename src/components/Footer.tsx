@@ -9,7 +9,7 @@ export default function Footer() {
         {/* Top Section */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-12 border-b border-gray-800">
           <p className="text-xl md:text-2xl font-bold font-roboto-slab max-w-[500px] leading-tight">
-            ooShirts makes it easy and affordable to design custom t shirts. Whether you're ordering one or a thousand shirts, we'll help you save on your order.
+            ooShirts makes it easy and affordable to design custom T shirts. Whether you're ordering one or a thousand shirts, we'll help you save on your order.
           </p>
           <Link
             href="#"
