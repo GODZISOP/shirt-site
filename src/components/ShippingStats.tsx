@@ -1,0 +1,68 @@
+import { CheckCircle2, Calendar, Truck } from "lucide-react";
+
+export default function ShippingStats() {
+  return (
+    <section className="w-full bg-[var(--color-stats-bg)] flex justify-center py-12 lg:py-8 border-b border-gray-200">
+      <div className="max-w-[1280px] w-full px-4 lg:px-[30px]">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-6 justify-center">
+          
+          {/* Stat 1 */}
+          <div className="flex items-center gap-5 justify-center lg:justify-start">
+            <div className="w-[86px] h-[86px] rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center shrink-0">
+              <CheckCircle2 className="w-10 h-10 text-[var(--color-primary)]" />
+            </div>
+            <div className="flex flex-col gap-[6px]">
+              <p className="text-2xl text-[var(--color-dark-text)] font-bold leading-[20px]">
+                Over 10 million
+              </p>
+              <p className="text-sm text-gray-500 leading-[18px]">
+                shirts printed since 2007
+              </p>
+            </div>
+          </div>
+
+          {/* Stat 2 */}
+          <div className="flex items-center gap-5 justify-center lg:justify-start">
+            <div className="w-[86px] h-[86px] rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center shrink-0">
+              <Calendar className="w-10 h-10 text-[var(--color-primary)]" />
+            </div>
+            <div className="flex flex-col gap-2">
+              <p className="text-lg leading-[13px] tracking-tight font-bold text-[var(--color-primary)]">
+                Free Shipping
+              </p>
+              <div className="flex flex-col gap-[6px]">
+                <p className="text-sm text-gray-500 leading-[18px]">
+                  Guaranteed delivery by
+                </p>
+                <p className="text-2xl text-[var(--color-dark-text)] font-bold leading-[20px]">
+                  July 23
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Stat 3 */}
+          <div className="flex items-center gap-5 justify-center lg:justify-start">
+            <div className="w-[86px] h-[86px] rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center shrink-0">
+              <Truck className="w-10 h-10 text-[var(--color-primary)]" />
+            </div>
+            <div className="flex flex-col gap-2">
+              <p className="text-lg leading-[13px] tracking-tight font-bold text-[var(--color-primary)]">
+                Rush Shipping
+              </p>
+              <div className="flex flex-col gap-[6px]">
+                <p className="text-sm text-gray-500 leading-[18px]">
+                  Available at checkout
+                </p>
+                <p className="text-xl text-[var(--color-dark-text)] font-bold leading-[20px]">
+                  Fast & Reliable
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  );
+}
