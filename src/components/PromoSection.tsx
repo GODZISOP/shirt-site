@@ -51,7 +51,7 @@ export default function PromoSection() {
         </div>
       </div>
 
-      <div className="w-full max-w-[1200px] mx-auto flex flex-col gap-12 lg:gap-16 px-4 lg:px-[30px] mt-8 lg:mt-12 overflow-hidden">
+      <div className="w-full max-w-[1200px] mx-auto flex flex-col gap-12 lg:gap-16 px-4 lg:px-[30px] mt-8 lg:mt-12">
         
         {/* Heading Block */}
         <div className="relative w-full max-w-4xl mx-auto text-center mt-4">
