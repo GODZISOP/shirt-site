@@ -71,7 +71,7 @@ export default function ProductCategories() {
                   filter: { duration: 0.8, ease: "easeOut", delay: Math.floor(idx / 2) * 0.2 }
                 }}
                 viewport={{ once: false, margin: "-50px" }}
-                className="flex flex-col items-center group cursor-pointer col-span-1"
+                className={`flex flex-col items-center group cursor-pointer col-span-1 ${cat.top ? 'lg:col-span-2 lg:first:col-span-1 lg:[&:nth-child(2)]:col-span-2 lg:[&:nth-child(3)]:col-span-2' : ''}`}
               >
                 <div className="w-full aspect-square bg-[#F8F9F9] rounded-2xl flex flex-col items-center justify-center mb-4 transition-transform group-hover:-translate-y-1 group-hover:shadow-lg relative overflow-hidden">
                   <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors z-10 pointer-events-none"></div>
@@ -90,7 +90,7 @@ export default function ProductCategories() {
 
         <div className="flex flex-col items-center gap-6 mt-4">
           <p className="text-sm text-gray-500 text-center max-w-[300px]">
-            Join 1,000,000+ customers who have used ooShirts to create custom printed t-shirts.
+            Join 1,000,000+ customers who have used Demir Studio to create custom printed t-shirts.
           </p>
           <Link
             href="#"

@@ -10,7 +10,7 @@ export default function OurPromise() {
             Our Promise
           </div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl text-[var(--color-dark-blue)] font-bold font-roboto-slab text-center max-w-[600px] leading-tight tracking-tight">
-            ooShirts makes it fun and affordable to order custom t-shirts
+            Demir Studio makes it fun and affordable to order custom t-shirts
           </h2>
         </div>
 
@@ -22,7 +22,7 @@ export default function OurPromise() {
             </div>
             <h3 className="text-xl font-bold text-[var(--color-dark-blue)] tracking-tight">Low Price Guarantee</h3>
             <p className="text-sm text-gray-500 leading-relaxed px-4">
-              ooShirts.com was founded by a high school student in 2007 with an investment of just $2000. Our goal was to offer <a href="#" className="underline hover:text-[var(--color-primary)]">custom apparel</a> that's actually affordable to school groups, nonprofits, families, and small businesses in the US. If you find a lower price online, simply send it to us and we'll match the price.
+              Demir Studio was founded by a high school student in 2007 with an investment of just $2000. Our goal was to offer <a href="#" className="underline hover:text-[var(--color-primary)]">custom apparel</a> that's actually affordable to school groups, nonprofits, families, and small businesses in the US. If you find a lower price online, simply send it to us and we'll match the price.
             </p>
           </div>
 

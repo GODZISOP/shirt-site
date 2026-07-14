@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { MessageCircle, Phone, Menu, X } from "lucide-react";
+import logoImg from "../app/Shirt/image copy 12.png";
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -11,8 +13,8 @@ export default function Header() {
     <header className="sticky top-0 z-50 flex w-full items-center justify-center bg-white border-b border-gray-200">
       <div className="flex h-full w-full items-center justify-between px-4 lg:px-[30px] py-4 lg:py-5 max-w-[1440px] mx-auto">
         <div className="flex items-center gap-8">
-          <Link href="/" className="text-2xl font-black text-[var(--color-dark-blue)] font-roboto-slab tracking-tighter">
-            ooShirts
+          <Link href="/" className="relative w-32 h-16 md:w-40 md:h-20 flex items-center shrink-0">
+            <Image src={logoImg} alt="Logo" fill className="object-contain object-left" />
           </Link>
           <nav aria-label="Main navigation" className="hidden lg:flex items-center gap-9 text-[var(--color-dark-text)]">
             <button className="text-sm font-medium leading-[21px] cursor-pointer hover:text-[var(--color-primary)] transition-colors">

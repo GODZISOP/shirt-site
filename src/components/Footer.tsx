@@ -9,7 +9,7 @@ export default function Footer() {
         {/* Top Section */}
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 pb-12 border-b border-gray-800">
           <p className="text-xl md:text-2xl font-bold font-roboto-slab max-w-[500px] leading-tight">
-            ooShirts makes it easy and affordable to design custom T shirts. Whether you're ordering one or a thousand shirts, we'll help you save on your order.
+            Demir Studio makes it easy and affordable to design custom T shirts. Whether you're ordering one or a thousand shirts, we'll help you save on your order.
           </p>
           <Link
             href="#"
@@ -31,7 +31,7 @@ export default function Footer() {
                 888-257-1918
               </Link>
               <Link href="mailto:help@ooshirts.com" className="px-4 py-2 bg-gray-800 rounded-md text-sm hover:bg-gray-700 transition-colors mt-2 inline-block w-fit">
-                help@ooshirts.com
+                help@demirstudio.com
               </Link>
             </div>
           </div>
@@ -84,7 +84,7 @@ export default function Footer() {
 
         {/* Bottom Section */}
         <div className="flex flex-col md:flex-row items-center justify-between pt-8 border-t border-gray-800 gap-4">
-          <p className="text-xs text-gray-500">© 2024 ooShirts. All rights reserved.</p>
+          <p className="text-xs text-gray-500">© 2024 Demir Studio. All rights reserved.</p>
           <div className="flex items-center gap-4">
             <Link href="#" className="text-xs text-gray-500 hover:text-white transition-colors">Facebook</Link>
             <Link href="#" className="text-xs text-gray-500 hover:text-white transition-colors">Instagram</Link>

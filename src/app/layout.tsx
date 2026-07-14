@@ -13,8 +13,8 @@ const robotoSlab = Roboto_Slab({
 });
 
 export const metadata: Metadata = {
-  title: "Cheap Custom T-Shirt Printing at Any Quantity | ooShirts",
-  description: "Custom t-shirts for less! ooShirts is the leader in affordable t-shirt printing.",
+  title: "Cheap Custom T-Shirt Printing at Any Quantity | Demir Studio",
+  description: "Custom t-shirts for less! Demir Studio is the leader in affordable t-shirt printing.",
 };
 
 export default function RootLayout({
