@@ -7,34 +7,34 @@ export default function ShippingStats() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-6 justify-center">
           
           {/* Stat 1 */}
-          <div className="flex items-center gap-5 justify-center lg:justify-start">
-            <div className="w-[86px] h-[86px] rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center shrink-0">
-              <CheckCircle2 className="w-10 h-10 text-[var(--color-primary)]" />
+          <div className="flex items-center gap-4 md:gap-5 justify-start w-fit mx-auto lg:mx-0">
+            <div className="w-[60px] h-[60px] md:w-[86px] md:h-[86px] rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center shrink-0">
+              <CheckCircle2 className="w-6 h-6 md:w-10 md:h-10 text-[var(--color-primary)]" />
             </div>
-            <div className="flex flex-col gap-[6px]">
-              <p className="text-2xl text-[var(--color-dark-text)] font-bold leading-[20px]">
+            <div className="flex flex-col gap-[4px] md:gap-[6px]">
+              <p className="text-xl md:text-2xl text-[var(--color-dark-text)] font-bold leading-[20px]">
                 Over 10 million
               </p>
-              <p className="text-sm text-gray-500 leading-[18px]">
+              <p className="text-xs md:text-sm text-gray-500 leading-[18px]">
                 shirts printed since 2007
               </p>
             </div>
           </div>
 
           {/* Stat 2 */}
-          <div className="flex items-center gap-5 justify-center lg:justify-start">
-            <div className="w-[86px] h-[86px] rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center shrink-0">
-              <Calendar className="w-10 h-10 text-[var(--color-primary)]" />
+          <div className="flex items-center gap-4 md:gap-5 justify-start w-fit mx-auto lg:mx-0">
+            <div className="w-[60px] h-[60px] md:w-[86px] md:h-[86px] rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center shrink-0">
+              <Calendar className="w-6 h-6 md:w-10 md:h-10 text-[var(--color-primary)]" />
             </div>
-            <div className="flex flex-col gap-2">
-              <p className="text-lg leading-[13px] tracking-tight font-bold text-[var(--color-primary)]">
+            <div className="flex flex-col gap-1 md:gap-2">
+              <p className="text-base md:text-lg leading-[13px] tracking-tight font-bold text-[var(--color-primary)]">
                 Free Shipping
               </p>
-              <div className="flex flex-col gap-[6px]">
-                <p className="text-sm text-gray-500 leading-[18px]">
+              <div className="flex flex-col gap-[2px] md:gap-[6px]">
+                <p className="text-xs md:text-sm text-gray-500 leading-[18px]">
                   Guaranteed delivery by
                 </p>
-                <p className="text-2xl text-[var(--color-dark-text)] font-bold leading-[20px]">
+                <p className="text-xl md:text-2xl text-[var(--color-dark-text)] font-bold leading-[20px]">
                   July 23
                 </p>
               </div>
@@ -42,19 +42,19 @@ export default function ShippingStats() {
           </div>
 
           {/* Stat 3 */}
-          <div className="flex items-center gap-5 justify-center lg:justify-start">
-            <div className="w-[86px] h-[86px] rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center shrink-0">
-              <Truck className="w-10 h-10 text-[var(--color-primary)]" />
+          <div className="flex items-center gap-4 md:gap-5 justify-start w-fit mx-auto lg:mx-0">
+            <div className="w-[60px] h-[60px] md:w-[86px] md:h-[86px] rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center shrink-0">
+              <Truck className="w-6 h-6 md:w-10 md:h-10 text-[var(--color-primary)]" />
             </div>
-            <div className="flex flex-col gap-2">
-              <p className="text-lg leading-[13px] tracking-tight font-bold text-[var(--color-primary)]">
+            <div className="flex flex-col gap-1 md:gap-2">
+              <p className="text-base md:text-lg leading-[13px] tracking-tight font-bold text-[var(--color-primary)]">
                 Rush Shipping
               </p>
-              <div className="flex flex-col gap-[6px]">
-                <p className="text-sm text-gray-500 leading-[18px]">
+              <div className="flex flex-col gap-[2px] md:gap-[6px]">
+                <p className="text-xs md:text-sm text-gray-500 leading-[18px]">
                   Available at checkout
                 </p>
-                <p className="text-xl text-[var(--color-dark-text)] font-bold leading-[20px]">
+                <p className="text-lg md:text-xl text-[var(--color-dark-text)] font-bold leading-[20px]">
                   Fast & Reliable
                 </p>
               </div>

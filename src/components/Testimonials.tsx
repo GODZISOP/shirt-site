@@ -43,10 +43,10 @@ const reviews = [
 
 export default function Testimonials() {
   return (
-    <section className="w-full bg-gradient-to-b from-white to-gray-50 py-24 flex flex-col items-center overflow-hidden" style={{ perspective: "1500px" }}>
-      <div className="max-w-[1280px] w-full px-4 lg:px-[30px] flex flex-col items-center gap-16">
+    <section className="w-full bg-gradient-to-b from-white to-gray-50 py-12 lg:py-24 flex flex-col items-center overflow-hidden" style={{ perspective: "1500px" }}>
+      <div className="max-w-[1280px] w-full px-4 lg:px-[30px] flex flex-col items-center gap-8 lg:gap-16">
 
-        <h2 className="text-3xl md:text-4xl text-[var(--color-dark-blue)] font-bold font-roboto-slab text-center max-w-[500px] leading-tight">
+        <h2 className="text-2xl md:text-3xl lg:text-4xl text-[var(--color-dark-blue)] font-bold font-roboto-slab text-center max-w-[500px] leading-tight">
           What our customers have to say
         </h2>
 
@@ -54,7 +54,7 @@ export default function Testimonials() {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: false, amount: 0.2 }} // Triggers when 20% of the grid is visible
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 w-full"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8 w-full"
         >
           {reviews.map((review, idx) => {
             let initialProps, whileInViewProps;
@@ -107,18 +107,18 @@ export default function Testimonials() {
                   }
                 }}
                 whileHover={{ y: -10, scale: 1.02 }}
-                className="bg-white p-8 rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 flex flex-col gap-6 h-full cursor-pointer hover:shadow-2xl hover:shadow-blue-900/10 transition-shadow duration-300"
+                className="bg-white p-6 md:p-8 rounded-2xl shadow-xl shadow-gray-200/50 border border-gray-100 flex flex-col gap-4 md:gap-6 h-full cursor-pointer hover:shadow-2xl hover:shadow-blue-900/10 transition-shadow duration-300"
               >
                 <div className="flex flex-col">
-                  <p className="font-bold text-[var(--color-dark-text)] text-lg">{review.name}</p>
-                  <p className="text-sm text-gray-500 font-medium">{review.role}</p>
+                  <p className="font-bold text-[var(--color-dark-text)] text-base md:text-lg">{review.name}</p>
+                  <p className="text-xs md:text-sm text-gray-500 font-medium">{review.role}</p>
                 </div>
                 <div className="flex gap-1">
                   {[...Array(review.rating)].map((_, i) => (
-                    <Star key={i} className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+                    <Star key={i} className="w-4 h-4 md:w-5 md:h-5 fill-yellow-400 text-yellow-400" />
                   ))}
                 </div>
-                <p className="text-[var(--color-dark-text)] text-base leading-relaxed font-medium">
+                <p className="text-[var(--color-dark-text)] text-sm md:text-base leading-relaxed font-medium">
                   "{review.text}"
                 </p>
               </motion.div>

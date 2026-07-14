@@ -4,19 +4,19 @@ import { MessageCircle, Phone, CheckCircle2 } from "lucide-react";
 
 export default function SupportSection() {
   return (
-    <section className="w-full bg-[#F5F5ED] py-16 lg:py-24 flex flex-col items-center">
-      <div className="max-w-[1280px] w-full px-4 lg:px-[30px] flex flex-col items-center gap-12">
+    <section className="w-full bg-[#F5F5ED] py-12 lg:py-24 flex flex-col items-center">
+      <div className="max-w-[1280px] w-full px-4 lg:px-[30px] flex flex-col items-center gap-8 lg:gap-12">
         
         <div className="flex flex-col items-center gap-4">
           <div className="px-4 py-1.5 bg-blue-100 text-[var(--color-primary)] rounded-full text-[10px] font-bold tracking-widest uppercase">
             We're Here to Help
           </div>
-          <h2 className="text-3xl md:text-4xl text-[var(--color-dark-blue)] font-bold font-roboto-slab text-center max-w-[600px] leading-tight tracking-tight">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl text-[var(--color-dark-blue)] font-bold font-roboto-slab text-center max-w-[600px] leading-tight tracking-tight">
             Incredible service. All-inclusive pricing. Real reviews.
           </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-6 w-full">
           
           {/* Chat with a real expert */}
           <div className="bg-white rounded-xl overflow-hidden shadow-sm flex flex-col">
@@ -29,10 +29,10 @@ export default function SupportSection() {
                 className="object-cover transition-transform duration-700 group-hover:scale-105"
               />
             </div>
-            <div className="p-8 flex flex-col gap-6 text-center h-full">
+            <div className="p-6 md:p-8 flex flex-col gap-6 text-center h-full">
               <div className="flex flex-col gap-2">
-                <h3 className="font-bold text-[var(--color-dark-blue)] text-xl tracking-tight">Chat with a real expert</h3>
-                <p className="text-sm text-gray-500">Live chat with a Shirt Specialist or speak one-on-one with our pros.</p>
+                <h3 className="font-bold text-[var(--color-dark-blue)] text-lg lg:text-xl tracking-tight">Chat with a real expert</h3>
+                <p className="text-xs lg:text-sm text-gray-500">Live chat with a Shirt Specialist or speak one-on-one with our pros.</p>
               </div>
               
               <div className="flex flex-col gap-4 mt-auto">
@@ -70,8 +70,8 @@ export default function SupportSection() {
                 className="object-cover transition-transform duration-700 group-hover:scale-105"
               />
             </div>
-            <div className="p-8 flex flex-col gap-6 text-center h-full">
-              <h3 className="font-bold text-[var(--color-dark-blue)] text-xl tracking-tight">Your price includes</h3>
+            <div className="p-6 md:p-8 flex flex-col gap-6 text-center h-full">
+              <h3 className="font-bold text-[var(--color-dark-blue)] text-lg lg:text-xl tracking-tight">Your price includes</h3>
               
               <ul className="flex flex-col gap-4 mt-2 text-left">
                 {[
@@ -92,8 +92,8 @@ export default function SupportSection() {
           </div>
 
           {/* Customer Reviews */}
-          <div className="bg-white rounded-xl overflow-hidden shadow-sm flex flex-col p-8">
-            <h3 className="font-bold text-[var(--color-dark-blue)] text-xl tracking-tight text-center mb-6">Customer Reviews</h3>
+          <div className="bg-white rounded-xl overflow-hidden shadow-sm flex flex-col p-6 md:p-8">
+            <h3 className="font-bold text-[var(--color-dark-blue)] text-lg lg:text-xl tracking-tight text-center mb-6">Customer Reviews</h3>
             
             <div className="flex flex-col gap-4 h-full overflow-y-auto pr-2 custom-scrollbar">
               
