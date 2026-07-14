@@ -1,9 +1,9 @@
 import Image from "next/image";
 import boyImg from "../app/Shirt/image copy 16.png";
 
-import promoImg1 from "../app/Shirt/women.png"; // Tall image
+import promoImg1 from "../app/Shirt/image copy 19.png"; // Tall image
 import promoImg2 from "../app/Shirt/landing-embroidered-patches.jpg"; // Small image
-import promoImg3 from "../app/Shirt/images.jpg"; // Small photo
+import promoImg3 from "../app/Shirt/image copy 18.png"; // Small photo
 
 export default function PromoSection() {
   return (

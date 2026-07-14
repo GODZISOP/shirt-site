@@ -23,7 +23,6 @@ export default function Home() {
         <PromoSection />
         <BrandLogos />
         <CustomerPhotos />
-        <Testimonials />
         <OurPromise />
         <FAQ />
         <SupportSection />
