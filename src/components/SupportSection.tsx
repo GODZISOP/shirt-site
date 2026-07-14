@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { MessageCircle, Phone, CheckCircle2 } from "lucide-react";
 
 export default function SupportSection() {
@@ -19,12 +20,14 @@ export default function SupportSection() {
           
           {/* Chat with a real expert */}
           <div className="bg-white rounded-xl overflow-hidden shadow-sm flex flex-col">
-            <div className="w-full h-48 bg-gray-200 relative">
-              {/* Placeholder for the support agent image */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-              <div className="w-full h-full flex items-center justify-center text-gray-400 bg-gray-100">
-                <span className="text-sm">Support Agent Image</span>
-              </div>
+            <div className="w-full h-48 bg-gray-200 relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10 pointer-events-none"></div>
+              <Image 
+                src="/Shirt/support_expert.png"
+                alt="Support Expert"
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+              />
             </div>
             <div className="p-8 flex flex-col gap-6 text-center h-full">
               <div className="flex flex-col gap-2">
@@ -58,12 +61,14 @@ export default function SupportSection() {
 
           {/* Your price includes */}
           <div className="bg-white rounded-xl overflow-hidden shadow-sm flex flex-col">
-             <div className="w-full h-48 bg-gray-200 relative">
-              {/* Placeholder for the printing facility image */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
-              <div className="w-full h-full flex items-center justify-center text-gray-400 bg-gray-100">
-                <span className="text-sm">Facility Image</span>
-              </div>
+             <div className="w-full h-48 bg-gray-200 relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent z-10 pointer-events-none"></div>
+              <Image 
+                src="/Shirt/tiger_stack.png"
+                alt="Printing Facility"
+                fill
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+              />
             </div>
             <div className="p-8 flex flex-col gap-6 text-center h-full">
               <h3 className="font-bold text-[var(--color-dark-blue)] text-xl tracking-tight">Your price includes</h3>

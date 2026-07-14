@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Tag, Star } from "lucide-react";
 
 export default function Hero() {
@@ -55,16 +56,16 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Right Image (Placeholder for now, using a stylized div to look premium) */}
-        <div className="w-full h-[300px] sm:h-[400px] lg:h-[500px] bg-white/40 rounded-3xl backdrop-blur-sm border border-white/50 flex items-center justify-center shadow-xl relative overflow-hidden">
-          {/* We would use an actual next/image here in production */}
-          <div className="absolute inset-0 bg-gradient-to-tr from-blue-100/50 to-transparent"></div>
-          <div className="relative z-10 text-center flex flex-col items-center gap-4">
-             <div className="w-32 h-32 bg-[var(--color-primary)]/10 rounded-full flex items-center justify-center animate-pulse">
-                <Tag className="w-16 h-16 text-[var(--color-primary)]" />
-             </div>
-             <p className="text-[var(--color-dark-blue)] font-bold text-xl font-roboto-slab">T-Shirt Mockup Area</p>
-          </div>
+        {/* Right Image */}
+        <div className="w-full h-[300px] sm:h-[400px] lg:h-[500px] bg-white/40 rounded-3xl backdrop-blur-sm border border-white/50 shadow-xl relative overflow-hidden group">
+          <div className="absolute inset-0 bg-[var(--color-dark-blue)]/10 opacity-0 group-hover:opacity-100 transition-opacity z-10 duration-500 pointer-events-none"></div>
+          <Image 
+            src="/Shirt/landing-embroidered-patches.jpg"
+            alt="Custom Apparel"
+            fill
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
+            priority
+          />
         </div>
       </div>
     </section>
