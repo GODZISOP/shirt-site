@@ -1,13 +1,15 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Tag, Star } from "lucide-react";
+import heroImg from "../app/Shirt/image copy 17.png";
 
 export default function Hero() {
   return (
-    <section className="w-full bg-[var(--color-hero-bg)] py-12 lg:py-20 flex justify-center">
-      <div className="max-w-[1440px] w-full px-4 lg:px-[30px] grid lg:grid-cols-2 gap-10 items-center">
+    <section className="w-full bg-[var(--color-hero-bg)] flex justify-center overflow-hidden">
+      <div className="max-w-[1440px] w-full px-4 lg:px-[30px] grid lg:grid-cols-2 gap-10 items-stretch">
+        
         {/* Left Content */}
-        <div className="flex flex-col gap-7 lg:pl-[30px]">
+        <div className="flex flex-col justify-center gap-7 lg:pl-[30px] py-12 lg:py-20">
           <div className="flex flex-col gap-4">
             <div className="inline-flex items-center px-4 py-2 rounded-full bg-[var(--color-light-blue)] w-fit gap-2">
               <Tag className="w-5 h-5 text-[var(--color-dark-blue)]" />
@@ -57,16 +59,17 @@ export default function Hero() {
         </div>
 
         {/* Right Image */}
-        <div className="w-full h-[300px] sm:h-[400px] lg:h-[500px] bg-white/40 rounded-3xl backdrop-blur-sm border border-white/50 shadow-xl relative overflow-hidden group">
-          <div className="absolute inset-0 bg-[var(--color-dark-blue)]/10 opacity-0 group-hover:opacity-100 transition-opacity z-10 duration-500 pointer-events-none"></div>
+        <div className="w-full h-[400px] sm:h-[500px] lg:h-[700px] relative flex items-end justify-center lg:justify-end">
           <Image 
-            src="/Shirt/landing-embroidered-patches.jpg"
+            src={heroImg}
             alt="Custom Apparel"
             fill
-            className="object-cover transition-transform duration-700 group-hover:scale-105"
+            className="object-contain object-bottom lg:scale-110 lg:origin-bottom"
             priority
+            unoptimized
           />
         </div>
+
       </div>
     </section>
   );

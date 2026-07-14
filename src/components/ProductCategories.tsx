@@ -56,8 +56,22 @@ export default function ProductCategories() {
           Choose from a variety of t-shirt styles
         </h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-6 w-full">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6 w-full auto-rows-[160px] md:auto-rows-[200px] lg:auto-rows-[240px] grid-flow-row-dense">
           {categories.map((cat, idx) => {
+            const getGridClasses = (idx: number) => {
+              switch (idx) {
+                case 0: return "col-span-2 row-span-2 lg:col-span-2 lg:row-span-2";
+                case 1: return "col-span-1 row-span-2 lg:col-span-1 lg:row-span-2";
+                case 2: return "col-span-1 row-span-1 lg:col-span-1 lg:row-span-1";
+                case 3: return "col-span-1 row-span-1 lg:col-span-1 lg:row-span-1";
+                case 4: return "col-span-2 row-span-1 lg:col-span-2 lg:row-span-1";
+                case 5: return "col-span-1 row-span-1 lg:col-span-2 lg:row-span-1";
+                case 6: return "col-span-1 row-span-2 lg:col-span-1 lg:row-span-2";
+                case 7: return "col-span-1 row-span-1 lg:col-span-1 lg:row-span-2";
+                default: return "col-span-1 row-span-1";
+              }
+            };
+
             return (
               <motion.div 
                 layout
@@ -66,14 +80,14 @@ export default function ProductCategories() {
                 whileInView={{ opacity: 1, y: 0, filter: "brightness(1)" }}
                 transition={{
                   layout: { duration: 0.8, type: "spring", bounce: 0.2 },
-                  opacity: { duration: 0.8, ease: "easeOut", delay: Math.floor(idx / 2) * 0.2 },
-                  y: { duration: 0.8, ease: "easeOut", delay: Math.floor(idx / 2) * 0.2 },
-                  filter: { duration: 0.8, ease: "easeOut", delay: Math.floor(idx / 2) * 0.2 }
+                  opacity: { duration: 0.8, ease: "easeOut", delay: Math.floor(idx / 2) * 0.1 },
+                  y: { duration: 0.8, ease: "easeOut", delay: Math.floor(idx / 2) * 0.1 },
+                  filter: { duration: 0.8, ease: "easeOut", delay: Math.floor(idx / 2) * 0.1 }
                 }}
                 viewport={{ once: false, margin: "-50px" }}
-                className={`flex flex-col items-center group cursor-pointer col-span-1 ${cat.top ? 'lg:col-span-2 lg:first:col-span-1 lg:[&:nth-child(2)]:col-span-2 lg:[&:nth-child(3)]:col-span-2' : ''}`}
+                className={`group cursor-pointer ${getGridClasses(idx)}`}
               >
-                <div className="w-full aspect-square bg-[#F8F9F9] rounded-2xl flex flex-col items-center justify-center mb-4 transition-transform group-hover:-translate-y-1 group-hover:shadow-lg relative overflow-hidden">
+                <div className="w-full h-full bg-[#F8F9F9] rounded-2xl flex flex-col items-center justify-center transition-transform group-hover:-translate-y-1 group-hover:shadow-lg relative overflow-hidden">
                   <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors z-10 pointer-events-none"></div>
                   <p className="absolute top-4 text-[var(--color-dark-blue)] font-bold text-xs md:text-sm z-20 bg-white/90 px-3 py-1 md:px-4 md:py-1.5 rounded-full shadow-sm backdrop-blur-sm">{cat.name}</p>
                   <Image 

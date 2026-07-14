@@ -1,5 +1,6 @@
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
+import PromoSection from "@/components/PromoSection";
 import ShippingStats from "@/components/ShippingStats";
 import ProductCategories from "@/components/ProductCategories";
 import BrandLogos from "@/components/BrandLogos";
@@ -18,6 +19,8 @@ export default function Home() {
         <Hero />
         <ShippingStats />
         <ProductCategories />
+
+        <PromoSection />
         <BrandLogos />
         <CustomerPhotos />
         <Testimonials />
