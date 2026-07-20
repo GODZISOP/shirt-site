@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { MessageCircle, Phone, Menu, X } from "lucide-react";
-import logoImg from "../app/Shirt/image copy 12.png";
+import logoImg from "../app/Shirt/image copy 20.png";
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
