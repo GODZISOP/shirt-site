@@ -36,13 +36,13 @@ export default function SupportSection() {
               </div>
               
               <div className="flex flex-col gap-4 mt-auto">
-                <Link href="tel:8882571918" className="flex items-center gap-4 text-left group">
+                <Link href="tel:5045643000" className="flex items-center gap-4 text-left group">
                   <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
                     <Phone className="w-4 h-4 text-[var(--color-primary)]" />
                   </div>
                   <div className="flex flex-col">
                     <span className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">Talk to real person</span>
-                    <span className="font-bold text-[var(--color-primary)] group-hover:underline">888-257-1918</span>
+                    <span className="font-bold text-[var(--color-primary)] group-hover:underline">(504) 564-3000</span>
                   </div>
                 </Link>
                 

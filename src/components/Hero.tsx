@@ -29,7 +29,7 @@ export default function Hero() {
             
             <div className="flex flex-col sm:flex-row sm:items-center gap-5">
               <Link
-                href="#"
+                href="/design"
                 className="py-4 px-10 text-center rounded-full bg-[var(--color-primary)] text-white text-xl font-semibold hover:bg-[var(--color-primary-hover)] transition-colors"
               >
                 Get Started

@@ -12,7 +12,7 @@ export default function Footer() {
             Demir Studio makes it easy and affordable to design custom T shirts. Whether you're ordering one or a thousand shirts, we'll help you save on your order.
           </p>
           <Link
-            href="#"
+            href="/design"
             className="px-8 py-3 rounded-full bg-white text-black font-semibold hover:bg-gray-200 transition-colors flex-shrink-0"
           >
             Start Designing
@@ -26,13 +26,18 @@ export default function Footer() {
           <div className="flex flex-col gap-6 md:col-span-1">
             <h4 className="font-bold text-sm tracking-widest uppercase">Contact Us</h4>
             <div className="flex flex-col gap-3">
-              <span className="text-xs text-gray-400">Call</span>
-              <Link href="tel:8882571918" className="px-4 py-2 bg-gray-800 rounded-md text-sm hover:bg-gray-700 transition-colors inline-block w-fit">
-                888-257-1918
+              <span className="text-xs text-gray-400">Call Us</span>
+              <Link href="tel:5045643000" className="px-3.5 py-2 bg-gray-800 rounded-md text-sm hover:bg-gray-700 transition-colors inline-block w-fit font-medium">
+                (504) 564-3000
               </Link>
-              <Link href="mailto:help@ooshirts.com" className="px-4 py-2 bg-gray-800 rounded-md text-sm hover:bg-gray-700 transition-colors mt-2 inline-block w-fit">
+              <span className="text-xs text-gray-400 mt-1">Email</span>
+              <Link href="mailto:help@demirstudio.com" className="text-sm text-gray-300 hover:text-white transition-colors underline break-all">
                 help@demirstudio.com
               </Link>
+              <span className="text-xs text-gray-400 mt-1">Address</span>
+              <p className="text-xs text-gray-300 leading-relaxed">
+                216 Baronne St. 70112<br />New Orleans, LA, US
+              </p>
             </div>
           </div>
 
@@ -41,7 +46,7 @@ export default function Footer() {
             <h4 className="font-bold text-sm tracking-widest uppercase">Sitemap</h4>
             <ul className="flex flex-col gap-3 text-sm text-gray-400">
               <li><Link href="#" className="hover:text-white transition-colors">T-Shirt Quotes</Link></li>
-              <li><Link href="#" className="hover:text-white transition-colors">T-Shirt Designs</Link></li>
+              <li><Link href="/design" className="hover:text-white transition-colors">T-Shirt Designs</Link></li>
               <li><Link href="#" className="hover:text-white transition-colors">Services We Offer</Link></li>
               <li><Link href="#" className="hover:text-white transition-colors">Shirt Brands</Link></li>
             </ul>
@@ -69,14 +74,14 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Custom Products */}
+          {/* Custom Products & Services */}
           <div className="flex flex-col gap-6">
-            <h4 className="font-bold text-sm tracking-widest uppercase">Custom Products</h4>
+            <h4 className="font-bold text-sm tracking-widest uppercase">Products & Services</h4>
             <ul className="flex flex-col gap-3 text-sm text-gray-400">
-              <li><Link href="#" className="hover:text-white transition-colors">Cheap Sweatshirts</Link></li>
-              <li><Link href="#" className="hover:text-white transition-colors">Cheap Hoodies</Link></li>
-              <li><Link href="#" className="hover:text-white transition-colors">Cheap Youth T-Shirts</Link></li>
-              <li><Link href="#" className="hover:text-white transition-colors">Cheap Women's T-Shirts</Link></li>
+              <li><Link href="/design?category=embroidery-tshirt" className="hover:text-white transition-colors">Custom Embroidery (T-Shirts & Hats)</Link></li>
+              <li><Link href="/design?category=print-tshirt" className="hover:text-white transition-colors">Custom Print (T-Shirts & Hats)</Link></li>
+              <li><Link href="/design?category=laser-hat" className="hover:text-white transition-colors">Laser Engraved (T-Shirts & Hats)</Link></li>
+              <li><Link href="/design" className="hover:text-white transition-colors">Interactive Design Studio</Link></li>
             </ul>
           </div>
 

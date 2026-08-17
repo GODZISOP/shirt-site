@@ -112,7 +112,7 @@ export default function ProductCategories() {
             Join 1,000,000+ customers who have used Demir Studio to create custom printed t-shirts.
           </p>
           <Link
-            href="#"
+            href="/design"
             className="px-8 py-3 rounded-full bg-[var(--color-primary)] text-white font-semibold hover:bg-[var(--color-primary-hover)] transition-colors shadow-md"
           >
             Start Designing
