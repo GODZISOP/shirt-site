@@ -5,7 +5,11 @@ import * as fabric from 'fabric';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import html2canvas from 'html2canvas';
-import { Type, Shirt, Image as ImageIcon, Shirt as ShirtViewIcon, Download, Eye, AlignLeft, AlignCenter, AlignRight, Bold, Italic, Underline, Palette, Grid } from 'lucide-react';
+import { Type, Shirt, Image as ImageIcon, Shirt as ShirtViewIcon, Download, Eye, AlignLeft, AlignCenter, AlignRight, Bold, Italic, Underline, Palette, Grid, Scissors, Printer, Flame, Trash2 } from 'lucide-react';
+import BaseballCapIcon from '@/components/icons/BaseballCapIcon';
+import ColorPickerModal from './ColorPickerModal';
+import QuoteModal from './QuoteModal';
+import { useCart } from "@/context/CartContext";
 import Header from '@/components/Header';
 import styles from './Design.module.css';
 import { CLIPART_CATEGORIES as BASE_CLIPART_CATEGORIES, CLIPART_DATA as BASE_CLIPART_DATA, ClipartItem } from './clipartData';
@@ -74,10 +78,31 @@ const COLORS = Array.from(new Set([
 export default function DesignPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'shirt' | 'text' | 'image' | 'clipart'>('shirt');
+  const [productType, setProductType] = useState<'tshirt' | 'hat'>('tshirt');
+  const [technique, setTechnique] = useState<'print' | 'embroidery' | 'laser'>('print');
+  const [hatPatchColor, setHatPatchColor] = useState('#c19a6b');
   const [shirtColor, setShirtColor] = useState('#FFFFFF');
   const [isLoaded, setIsLoaded] = useState(false);
   
   useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const catParam = params.get('cat') || '';
+      const prodParam = params.get('product') || '';
+      const methodParam = params.get('method') || '';
+
+      if (prodParam === 'hat' || catParam.includes('hat')) {
+        setProductType('hat');
+      }
+      if (methodParam === 'embroidery' || catParam.includes('embroidery')) {
+        setTechnique('embroidery');
+      } else if (methodParam === 'laser' || catParam.includes('laser')) {
+        setTechnique('laser');
+      } else if (methodParam === 'print' || catParam.includes('print')) {
+        setTechnique('print');
+      }
+    } catch (e) {}
+
     const savedColor = sessionStorage.getItem('designerShirtColor');
     if (savedColor) {
       setShirtColor(savedColor);
@@ -104,6 +129,7 @@ export default function DesignPage() {
   // Quote & Buy State
   const [isQuoteModalOpen, setIsQuoteModalOpen] = useState(false);
   const [quoteImage, setQuoteImage] = useState<string | null>(null);
+  const { addToCart } = useCart();
   const [quantities, setQuantities] = useState({ S: 0, M: 0, L: 0, XL: 0, '2XL': 0, '3XL': 0 });
   const totalQuantity = Object.values(quantities).reduce((a, b) => a + (parseInt(b as any) || 0), 0);
   
@@ -158,62 +184,22 @@ export default function DesignPage() {
 
   // Dynamic Pricing Calculation
   const getPricingBreakdown = () => {
-    let breakdown = { basePrice: 6.98, frontPrice: 0, backPrice: 0, leftPrice: 0, rightPrice: 0 };
-
-    const analyzeCanvas = (canvasObjects: any[], view: ViewType) => {
-      if (!canvasObjects || canvasObjects.length === 0) return 0;
-      let total = 0;
-
-      canvasObjects.forEach(obj => {
-        const isUpload = obj.sourceType === 'upload';
-        const isText = obj.sourceType === 'text' || obj.type === 'i-text' || obj.type === 'text';
-        const isClipart = obj.sourceType === 'clipart' || (!isUpload && !isText);
-
-        if (view === 'front') {
-          if (isUpload) total += 6.02;
-          else if (isText) total += 5.02;
-          else if (isClipart) total += 5.02;
-        } else if (view === 'back') {
-          if (isUpload) total += 7.02;
-          else if (isText) total += 6.02;
-          else if (isClipart) total += 6.02;
-        } else {
-          // Sleeves (Left/Right)
-          if (isUpload) total += 1.50;
-          else if (isText) total += 1.50;
-          else if (isClipart) total += 1.50;
-        }
-      });
-
-      return total;
-    };
-
-    // Use unified JSON state for all views to ensure consistency
-    const statesToAnalyze = { ...canvasStates };
-    if (canvas) {
-      if (canvas.getObjects().length > 0) {
-        statesToAnalyze[currentView] = canvas.toJSON(['sourceType']);
-      } else {
-        statesToAnalyze[currentView] = null;
-      }
-    }
-
-    Object.keys(statesToAnalyze).forEach(key => {
-      const view = key as ViewType;
-      if (statesToAnalyze[view]?.objects?.length > 0) {
-        const cost = analyzeCanvas(statesToAnalyze[view].objects, view);
-        if (view === 'front') breakdown.frontPrice = cost;
-        if (view === 'back') breakdown.backPrice = cost;
-        if (view === 'left') breakdown.leftPrice = cost;
-        if (view === 'right') breakdown.rightPrice = cost;
-      }
-    });
-
+    let base = 19;
+    if (technique === 'laser') base = 18;
+    
+    let breakdown = { basePrice: base, frontPrice: 0, backPrice: 0, leftPrice: 0, rightPrice: 0 };
     return breakdown;
   };
 
   const pricing = getPricingBreakdown();
-  const PRICE_PER_SHIRT = parseFloat((pricing.basePrice + pricing.frontPrice + pricing.backPrice + pricing.leftPrice + pricing.rightPrice).toFixed(2));
+  let basePricePerShirt = parseFloat((pricing.basePrice + pricing.frontPrice + pricing.backPrice + pricing.leftPrice + pricing.rightPrice).toFixed(2));
+  
+  let discountPercentage = 0;
+  if (totalQuantity >= 100) discountPercentage = 0.25;
+  else if (totalQuantity >= 50) discountPercentage = 0.18;
+  else if (totalQuantity >= 25) discountPercentage = 0.10;
+
+  const PRICE_PER_SHIRT = parseFloat((basePricePerShirt * (1 - discountPercentage)).toFixed(2));
   const totalPrice = (totalQuantity * PRICE_PER_SHIRT).toFixed(2);
 
   const handleCanvasReady = useCallback((fabCanvas: any) => {
@@ -558,6 +544,14 @@ export default function DesignPage() {
   };
 
   const getShirtImageSrc = () => {
+    if (productType === 'hat') {
+      switch (currentView) {
+        case 'back': return '/hat-back.png';
+        case 'left': return '/hat-left.png';
+        case 'right': return '/hat-right.png';
+        default: return '/hat-front.png';
+      }
+    }
     switch (currentView) {
       case 'back': return '/shirt-back.png';
       case 'left': return '/shirt-left.png';
@@ -631,10 +625,17 @@ export default function DesignPage() {
          
          const img = new window.Image();
          img.crossOrigin = 'Anonymous';
-         if (view === 'front') img.src = '/shirt-front.png';
-         else if (view === 'back') img.src = '/shirt-back.png';
-         else if (view === 'left') img.src = '/shirt-left.png';
-         else img.src = '/shirt-right.png';
+         if (productType === 'hat') {
+           if (view === 'front') img.src = '/hat-front.png';
+           else if (view === 'back') img.src = '/hat-back.png';
+           else if (view === 'left') img.src = '/hat-left.png';
+           else img.src = '/hat-right.png';
+         } else {
+           if (view === 'front') img.src = '/shirt-front.png';
+           else if (view === 'back') img.src = '/shirt-back.png';
+           else if (view === 'left') img.src = '/shirt-left.png';
+           else img.src = '/shirt-right.png';
+         }
          
          img.onload = () => {
            const scale = Math.min(500 / img.width, 600 / img.height);
@@ -705,10 +706,17 @@ export default function DesignPage() {
              if (!ctx) return resolve('');
              
              const img = new window.Image();
-             if (view === 'front') img.src = '/shirt-front.png';
-             else if (view === 'back') img.src = '/shirt-back.png';
-             else if (view === 'left') img.src = '/shirt-left.png';
-             else img.src = '/shirt-right.png';
+             if (productType === 'hat') {
+               if (view === 'front') img.src = '/hat-front.png';
+               else if (view === 'back') img.src = '/hat-back.png';
+               else if (view === 'left') img.src = '/hat-left.png';
+               else img.src = '/hat-right.png';
+             } else {
+               if (view === 'front') img.src = '/shirt-front.png';
+               else if (view === 'back') img.src = '/shirt-back.png';
+               else if (view === 'left') img.src = '/shirt-left.png';
+               else img.src = '/shirt-right.png';
+             }
              
              img.onload = () => {
                const scale = Math.min(500 / img.width, 600 / img.height);
@@ -875,6 +883,8 @@ export default function DesignPage() {
       const finalPrice = basePrice + decorationPrice;
 
       const newCheckoutData = {
+        productType,
+        technique,
         shirtColor,
         quantities,
         pricePerShirt: PRICE_PER_SHIRT,
@@ -901,12 +911,11 @@ export default function DesignPage() {
       
       try {
         const mergedState = { ...existingState, ...newCheckoutData };
-        sessionStorage.setItem('checkoutState', JSON.stringify(mergedState));
-        sessionStorage.setItem('checkoutStep', '0'); // Reset step to Summary
+        addToCart(mergedState as any);
+        alert("Item successfully added to cart!");
+        setIsQuoteModalOpen(false);
       } catch (e) {
         console.warn('Could not save checkout state', e);
-        // Fallback to avoid breaking navigation
-        sessionStorage.setItem('checkoutStep', '0');
       }
 
       // Save the latest state for the current view to ensure it's not lost on back navigation
@@ -919,7 +928,6 @@ export default function DesignPage() {
         }
       }
 
-      router.push('/checkout');
     } catch (err) {
       console.error("Error during checkout:", err);
       alert("Failed to proceed to checkout. Please try again.");
@@ -962,18 +970,147 @@ export default function DesignPage() {
       <div className={styles.mainArea}>
         <aside className={styles.sidebar}>
           {activeTab === 'shirt' && (
-            <div>
-              <h3 className={styles.sidebarTitle}>Choose Color</h3>
-              <div className={styles.colorGrid}>
-                {COLORS.map(color => (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              {/* Product Selector */}
+              <div>
+                <h3 className={styles.sidebarTitle}>1. Select Garment</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
                   <button
-                    key={color}
-                    className={`${styles.colorSwatch} ${shirtColor === color ? styles.active : ''}`}
-                    style={{ backgroundColor: color }}
-                    onClick={() => setShirtColor(color)}
-                    aria-label={`Select color ${color}`}
-                  />
-                ))}
+                    type="button"
+                    onClick={() => setProductType('tshirt')}
+                    style={{
+                      padding: '0.75rem 0.5rem',
+                      borderRadius: '8px',
+                      border: productType === 'tshirt' ? '2px solid #0070f3' : '1px solid #ddd',
+                      backgroundColor: productType === 'tshirt' ? '#eef6ff' : '#fff',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '0.25rem',
+                      fontWeight: 600,
+                      fontSize: '0.8rem',
+                      color: productType === 'tshirt' ? '#0070f3' : '#333'
+                    }}
+                  >
+                    <Shirt size={22} className="stroke-[1.75]" />
+                    <span>T-Shirt</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setProductType('hat')}
+                    style={{
+                      padding: '0.75rem 0.5rem',
+                      borderRadius: '8px',
+                      border: productType === 'hat' ? '2px solid #0070f3' : '1px solid #ddd',
+                      backgroundColor: productType === 'hat' ? '#eef6ff' : '#fff',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '0.25rem',
+                      fontWeight: 600,
+                      fontSize: '0.8rem',
+                      color: productType === 'hat' ? '#0070f3' : '#333'
+                    }}
+                  >
+                    <BaseballCapIcon size={22} />
+                    <span>Cap / Hat</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Technique Selector */}
+              <div>
+                <h3 className={styles.sidebarTitle}>2. Decoration Method</h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '0.4rem' }}>
+                  <button
+                    type="button"
+                    onClick={() => setTechnique('print')}
+                    style={{
+                      padding: '0.6rem 0.75rem',
+                      borderRadius: '8px',
+                      border: technique === 'print' ? '2px solid #10b981' : '1px solid #ddd',
+                      backgroundColor: technique === 'print' ? '#ecfdf5' : '#fff',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      fontWeight: 600,
+                      fontSize: '0.8rem',
+                      color: technique === 'print' ? '#065f46' : '#333',
+                      textAlign: 'left'
+                    }}
+                  >
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <Printer size={16} /> Direct Print (DTF)
+                    </span>
+                    <span style={{ fontSize: '0.7rem', color: '#10b981' }}>Standard</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setTechnique('embroidery')}
+                    style={{
+                      padding: '0.6rem 0.75rem',
+                      borderRadius: '8px',
+                      border: technique === 'embroidery' ? '2px solid #8b5cf6' : '1px solid #ddd',
+                      backgroundColor: technique === 'embroidery' ? '#f5f3ff' : '#fff',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      fontWeight: 600,
+                      fontSize: '0.8rem',
+                      color: technique === 'embroidery' ? '#5b21b6' : '#333',
+                      textAlign: 'left'
+                    }}
+                  >
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <Scissors size={16} /> 3D Custom Embroidery
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setTechnique('laser')}
+                    style={{
+                      padding: '0.6rem 0.75rem',
+                      borderRadius: '8px',
+                      border: technique === 'laser' ? '2px solid #f59e0b' : '1px solid #ddd',
+                      backgroundColor: technique === 'laser' ? '#fffbeb' : '#fff',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      fontWeight: 600,
+                      fontSize: '0.8rem',
+                      color: technique === 'laser' ? '#92400e' : '#333',
+                      textAlign: 'left'
+                    }}
+                  >
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <Flame size={16} /> Laser Engraved Patch
+                    </span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Color Swatches */}
+              <div>
+                <h3 className={styles.sidebarTitle}>3. Choose {productType === 'hat' ? 'Cap' : 'Shirt'} Color</h3>
+                <div className={styles.colorGrid}>
+                  {COLORS.map(color => (
+                    <button
+                      key={color}
+                      className={`${styles.colorSwatch} ${shirtColor === color ? styles.active : ''}`}
+                      style={{ backgroundColor: color }}
+                      onClick={() => setShirtColor(color)}
+                      aria-label={`Select color ${color}`}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
           )}
@@ -1167,10 +1304,14 @@ export default function DesignPage() {
                       border: 'none',
                       borderRadius: '4px',
                       fontWeight: 600,
-                      cursor: 'pointer'
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.4rem'
                     }}
                   >
-                    🗑️ Delete Text
+                    <Trash2 size={16} /> Delete Text
                   </button>
                 </div>
               )}
@@ -1214,10 +1355,14 @@ export default function DesignPage() {
                       border: 'none',
                       borderRadius: '4px',
                       fontWeight: 600,
-                      cursor: 'pointer'
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.4rem'
                     }}
                   >
-                    🗑️ Delete Selected Image
+                    <Trash2 size={16} /> Delete Selected Image
                   </button>
                 </div>
               )}
@@ -1314,10 +1459,14 @@ export default function DesignPage() {
                       border: 'none',
                       borderRadius: '4px',
                       fontWeight: 600,
-                      cursor: 'pointer'
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.4rem'
                     }}
                   >
-                    🗑️ Delete Selected
+                    <Trash2 size={16} /> Delete Selected
                   </button>
                 </div>
               )}
@@ -1385,7 +1534,11 @@ export default function DesignPage() {
               onClick={() => handleViewChange('front')}
             >
               <div className={styles.viewIcon}>
-                <img src="/shirt-front.png" alt="Front" style={{ width: '42px', height: '42px', objectFit: 'contain' }} />
+                <img 
+                  src={productType === 'hat' ? '/hat-front.png' : '/shirt-front.png'} 
+                  alt="Front" 
+                  style={{ width: '42px', height: '42px', objectFit: 'contain' }} 
+                />
               </div>
               <span className={styles.viewLabel}>FRONT</span>
             </button>
@@ -1394,7 +1547,11 @@ export default function DesignPage() {
               onClick={() => handleViewChange('back')}
             >
               <div className={styles.viewIcon}>
-                <img src="/shirt-back.png" alt="Back" style={{ width: '42px', height: '42px', objectFit: 'contain' }} />
+                <img 
+                  src={productType === 'hat' ? '/hat-back.png' : '/shirt-back.png'} 
+                  alt="Back" 
+                  style={{ width: '42px', height: '42px', objectFit: 'contain' }} 
+                />
               </div>
               <span className={styles.viewLabel}>BACK</span>
             </button>
@@ -1403,18 +1560,26 @@ export default function DesignPage() {
               onClick={() => handleViewChange('left')}
             >
               <div className={styles.viewIcon}>
-                <img src="/shirt-left.png" alt="Left" style={{ width: '42px', height: '42px', objectFit: 'contain' }} />
+                <img 
+                  src={productType === 'hat' ? '/hat-left.png' : '/shirt-left.png'} 
+                  alt="Left" 
+                  style={{ width: '42px', height: '42px', objectFit: 'contain' }} 
+                />
               </div>
-              <span className={styles.viewLabel}>LEFT SLEEVE</span>
+              <span className={styles.viewLabel}>{productType === 'hat' ? 'LEFT SIDE' : 'LEFT SLEEVE'}</span>
             </button>
             <button 
               className={`${styles.viewBtn} ${currentView === 'right' ? styles.active : ''}`}
               onClick={() => handleViewChange('right')}
             >
               <div className={styles.viewIcon}>
-                <img src="/shirt-right.png" alt="Right" style={{ width: '42px', height: '42px', objectFit: 'contain' }} />
+                <img 
+                  src={productType === 'hat' ? '/hat-right.png' : '/shirt-right.png'} 
+                  alt="Right" 
+                  style={{ width: '42px', height: '42px', objectFit: 'contain' }} 
+                />
               </div>
-              <span className={styles.viewLabel}>RIGHT SLEEVE</span>
+              <span className={styles.viewLabel}>{productType === 'hat' ? 'RIGHT SIDE' : 'RIGHT SLEEVE'}</span>
             </button>
           </div>
         </section>
@@ -1425,7 +1590,7 @@ export default function DesignPage() {
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
             <div className={styles.modalHeader}>
-              <h2>Untitled T-Shirt</h2>
+              <h2>{productType === 'hat' ? 'Custom Structured Baseball Cap' : 'Custom Short Sleeve T-Shirt'}</h2>
               <div className={styles.modalHeaderRight}>
                 <button className={styles.closeBtn} onClick={() => setIsQuoteModalOpen(false)}>×</button>
               </div>
@@ -1433,7 +1598,15 @@ export default function DesignPage() {
             
             <div className={styles.modalBody}>
               <div className={styles.modalLeftPanel}>
-                <h3>Total inks: 0</h3>
+                <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  {technique === 'embroidery' ? (
+                    <><Scissors size={18} className="text-amber-600" /> 3D Puff Embroidery</>
+                  ) : technique === 'laser' ? (
+                    <><Flame size={18} className="text-orange-600" /> Laser Engraved Patch</>
+                  ) : (
+                    <><Printer size={18} className="text-blue-600" /> DTF Color Print</>
+                  )}
+                </h3>
               </div>
               <div className={styles.modalRightPanel}>
                 <div className={styles.shirtDetails}>
@@ -1443,8 +1616,8 @@ export default function DesignPage() {
                     )}
                   </div>
                   <div className={styles.shirtInfo}>
-                    <h4>T-Shirts &gt; Short Sleeve Shirts</h4>
-                    <h2>Gildan Cotton T-Shirt</h2>
+                    <h4>{productType === 'hat' ? 'Headwear > Structured Caps' : 'T-Shirts > Short Sleeve Shirts'}</h4>
+                    <h2>{productType === 'hat' ? 'Cotton Twill Cap' : 'Gildan Cotton T-Shirt'}</h2>
                     <div className={styles.price}>${PRICE_PER_SHIRT} <small>/ea</small></div>
                   </div>
                 </div>
@@ -1478,7 +1651,7 @@ export default function DesignPage() {
                   cursor: totalQuantity === 0 ? 'not-allowed' : 'pointer' 
                 }}
               >
-                Go to Checkout
+                Add to Cart
               </button>
             </div>
           </div>

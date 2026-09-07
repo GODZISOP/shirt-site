@@ -3,8 +3,9 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Phone, ChevronDown, ArrowRight, X, Menu, Sparkles } from "lucide-react";
+import { Phone, ChevronDown, ArrowRight, X, Menu, Sparkles, ShoppingCart } from "lucide-react";
 import logoImg from "../app/Shirt/image copy 20.png";
+import { useCart } from "@/context/CartContext";
 
 interface ProductItem {
   name: string;
@@ -88,6 +89,7 @@ const PRODUCT_CATEGORIES: ProductCategory[] = [
 ];
 
 export default function Header() {
+  const { cart } = useCart();
   const [isProductsOpen, setIsProductsOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [mobileCategoryOpen, setMobileCategoryOpen] = useState<string | null>("embroidery");
@@ -255,13 +257,19 @@ export default function Header() {
                 Design Studio
               </Link>
               <Link 
-                href="#" 
+                href="/shop" 
+                className="text-sm font-semibold text-gray-700 hover:text-[#0070f3] transition-colors"
+              >
+                Shop Ready-Made
+              </Link>
+              <Link 
+                href="/bulk-order" 
                 className="text-sm font-semibold text-gray-700 hover:text-[#0070f3] transition-colors"
               >
                 Bulk Quotes
               </Link>
               <Link 
-                href="#" 
+                href="/track-order" 
                 className="text-sm font-semibold text-gray-700 hover:text-[#0070f3] transition-colors"
               >
                 Track Order
@@ -281,6 +289,15 @@ export default function Header() {
               </div>
             </Link>
 
+            <Link href="/checkout" className="relative p-2 text-gray-700 hover:text-[#0070f3] transition-colors">
+              <ShoppingCart className="w-5 h-5" />
+              {cart.length > 0 && (
+                <span className="absolute top-0 right-0 inline-flex items-center justify-center w-4 h-4 text-[9px] font-bold text-white bg-[#0070f3] border-2 border-white rounded-full">
+                  {cart.length}
+                </span>
+              )}
+            </Link>
+
             {/* Vibrant Blue Start Designing Button */}
             <Link
               href="/design"
@@ -292,6 +309,14 @@ export default function Header() {
 
           {/* Mobile Menu Button */}
           <div className="flex lg:hidden items-center gap-3">
+            <Link href="/checkout" className="relative p-2 text-gray-700 hover:text-[#0070f3] transition-colors">
+              <ShoppingCart className="w-5 h-5" />
+              {cart.length > 0 && (
+                <span className="absolute top-0 right-0 inline-flex items-center justify-center w-4 h-4 text-[9px] font-bold text-white bg-[#0070f3] border-2 border-white rounded-full">
+                  {cart.length}
+                </span>
+              )}
+            </Link>
             <Link
               href="/design"
               className="px-4 py-2 rounded-full bg-[#0070f3] text-white text-xs font-bold shadow-sm"
@@ -380,14 +405,21 @@ export default function Header() {
                 Design Studio
               </Link>
               <Link
-                href="#"
+                href="/shop"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-2.5 text-sm font-semibold text-gray-800 hover:text-[#0070f3] rounded-lg hover:bg-gray-50"
+              >
+                Shop Ready-Made
+              </Link>
+              <Link
+                href="/bulk-order"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="p-2.5 text-sm font-semibold text-gray-800 hover:text-[#0070f3] rounded-lg hover:bg-gray-50"
               >
                 Bulk Quotes
               </Link>
               <Link
-                href="#"
+                href="/track-order"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="p-2.5 text-sm font-semibold text-gray-800 hover:text-[#0070f3] rounded-lg hover:bg-gray-50"
               >

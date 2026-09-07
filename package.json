@@ -9,12 +9,17 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@paypal/react-paypal-js": "^10.4.0",
+    "@supabase/supabase-js": "^2.109.0",
+    "@types/nodemailer": "^8.0.1",
     "fabric": "^7.4.0",
     "framer-motion": "^12.42.2",
     "gsap": "^3.15.0",
     "html2canvas": "^1.4.1",
+    "idb-keyval": "^6.3.0",
     "lucide-react": "^1.23.0",
     "next": "16.2.10",
+    "nodemailer": "^10.0.1",
     "react": "19.2.4",
     "react-dom": "19.2.4"
   },

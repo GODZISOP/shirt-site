@@ -1,0 +1,18 @@
+name: Supabase Inactivity Preventer (Keep-Alive)
+
+on:
+  schedule:
+    # Runs every 3 days at 06:00 UTC
+    - cron: '0 6 */3 * *'
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase REST API
+        run: |
+          curl -s -o /dev/null -w "%{http_code}" \
+            -H "apikey: sb_publishable_zpK6-JTy6UP7VdqLfHAqLA_-5-cKhye" \
+            https://qohvhsjlfhjclvbjnzgz.supabase.co/auth/v1/health
+          echo "Supabase keep-alive ping dispatched successfully."

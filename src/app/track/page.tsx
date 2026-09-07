@@ -1,0 +1,132 @@
+"use client";
+
+import React, { useState } from 'react';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+import { Search, CheckCircle2, Clock, Truck, Package, PackageCheck } from 'lucide-react';
+
+const TRACKING_STEPS = [
+  { id: 1, name: 'Order Placed', icon: Clock, desc: 'We have received your order.' },
+  { id: 2, name: 'Digitizing/Proofing', icon: Search, desc: 'Your design is being reviewed.' },
+  { id: 3, name: 'In Production', icon: Package, desc: 'Your custom apparel is being made.' },
+  { id: 4, name: 'Quality Check', icon: PackageCheck, desc: 'Checking for perfection.' },
+  { id: 5, name: 'Shipped', icon: Truck, desc: 'Your order is on the way!' }
+];
+
+export default function TrackOrder() {
+  const [orderId, setOrderId] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [order, setOrder] = useState<any>(null);
+
+  const handleTrack = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!orderId.trim()) return;
+
+    setLoading(true);
+    setError('');
+    setOrder(null);
+
+    try {
+      const res = await fetch(`/api/track-order?id=${encodeURIComponent(orderId.trim())}`);
+      const data = await res.json();
+
+      if (data.success) {
+        setOrder(data.order);
+      } else {
+        setError(data.error || 'Order not found. Please check your Order ID.');
+      }
+    } catch (err) {
+      setError('An error occurred while tracking your order.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <main className="flex-1 bg-gray-50 py-16 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-12">
+            <h1 className="text-3xl font-bold text-slate-900 mb-4">Track Your Order</h1>
+            <p className="text-slate-600">Enter your Order ID to check its current status.</p>
+          </div>
+
+          <div className="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-slate-200 mb-8">
+            <form onSubmit={handleTrack} className="flex gap-4">
+              <input
+                type="text"
+                placeholder="e.g., ORD-123456-789"
+                value={orderId}
+                onChange={(e) => setOrderId(e.target.value)}
+                className="flex-1 px-4 py-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                required
+              />
+              <button
+                type="submit"
+                disabled={loading}
+                className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition disabled:opacity-50"
+              >
+                {loading ? 'Searching...' : 'Track'}
+              </button>
+            </form>
+            {error && <p className="mt-4 text-red-600 font-medium">{error}</p>}
+          </div>
+
+          {order && (
+            <div className="bg-white p-6 md:p-8 rounded-xl shadow-sm border border-slate-200">
+              <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-100 pb-6 mb-8">
+                <div>
+                  <h2 className="text-xl font-bold text-slate-900">Order: {order.order_id}</h2>
+                  <p className="text-slate-500 mt-1">Placed by {order.customer_name}</p>
+                </div>
+                <div className="mt-4 md:mt-0 text-left md:text-right">
+                  <p className="font-semibold text-slate-900">${order.total_price}</p>
+                  <p className="text-sm text-slate-500">{order.quantity} item(s)</p>
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="relative">
+                <div className="absolute left-6 md:left-1/2 top-0 bottom-0 w-0.5 bg-slate-200 -ml-0.5 md:-ml-0 md:w-full md:h-0.5 md:top-6 md:bottom-auto md:left-10 md:right-10 z-0"></div>
+                
+                <div className="flex flex-col md:flex-row justify-between gap-8 md:gap-4 relative z-10">
+                  {TRACKING_STEPS.map((step) => {
+                    const isCompleted = order.status_step >= step.id;
+                    const isCurrent = order.status_step === step.id;
+                    const Icon = step.icon;
+                    
+                    return (
+                      <div key={step.id} className="flex md:flex-col items-center md:text-center group flex-1">
+                        <div className={\`w-12 h-12 rounded-full flex items-center justify-center shrink-0 \${isCompleted ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-400 border-2 border-white shadow-sm'}\`}>
+                          <Icon size={20} />
+                        </div>
+                        <div className="ml-4 md:ml-0 md:mt-4">
+                          <h4 className={\`font-medium \${isCompleted ? 'text-slate-900' : 'text-slate-500'}\`}>{step.name}</h4>
+                          <p className="text-xs text-slate-500 mt-1 hidden md:block">{step.desc}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {order.status_step === 5 && order.tracking_number && (
+                <div className="mt-12 bg-blue-50 border border-blue-100 rounded-lg p-4 flex items-start gap-4">
+                  <Truck className="text-blue-600 shrink-0 mt-1" />
+                  <div>
+                    <h4 className="font-semibold text-blue-900">Tracking Information</h4>
+                    <p className="text-blue-800 mt-1">Carrier: {order.carrier || 'UPS'}</p>
+                    <p className="text-blue-800">Tracking Number: <strong>{order.tracking_number}</strong></p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </main>
+      <Footer />
+    </div>
+  );
+}

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Roboto_Slab } from "next/font/google";
 import "./globals.css";
+import WhatsAppWidget from "@/components/WhatsAppWidget";
+import { CartProvider } from "@/context/CartContext";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -33,7 +35,10 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased min-h-dvh isolate font-sans">
-        {children}
+        <CartProvider>
+          {children}
+          <WhatsAppWidget />
+        </CartProvider>
       </body>
     </html>
   );

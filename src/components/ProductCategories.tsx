@@ -6,19 +6,20 @@ import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 
 const initialCategories = [
-  { name: "Custom Shirts", items: 3, top: true, image: "/Shirt/florida-dtf-prints-services.png" },
-  { name: "Custom Hoodies", items: 3, top: true, image: "/Shirt/image.png" },
-  { name: "Custom Sweatshirts", items: 3, top: true, image: "/Shirt/image copy.png" },
-  { name: "Youth Tees", items: 5, top: false, image: "/Shirt/image copy 5.png" },
-  { name: "Performance Styles", items: 5, top: false, image: "/Shirt/il_800x800.7169952703_agqz.webp" },
-  { name: "Long Sleeve Shirts", items: 5, top: false, image: "/Shirt/image copy 3.png" },
-  { name: "Women Shirts", items: 5, top: false, image: "/Shirt/women.png" },
-  { name: "Jackets", items: 5, top: false, image: "/Shirt/image copy 2.png" },
+  { name: "Custom Caps & Hats", items: 4, top: true, image: "/hat-front.png", href: "/design?product=hat" },
+  { name: "Custom Shirts", items: 3, top: true, image: "/Shirt/florida-dtf-prints-services.png", href: "/design?product=tshirt" },
+  { name: "Custom Hoodies", items: 3, top: true, image: "/Shirt/image.png", href: "/design?product=tshirt" },
+  { name: "Custom Sweatshirts", items: 3, top: true, image: "/Shirt/image copy.png", href: "/design?product=tshirt" },
+  { name: "Youth Tees", items: 5, top: false, image: "/Shirt/image copy 5.png", href: "/design?product=tshirt" },
+  { name: "Performance Styles", items: 5, top: false, image: "/Shirt/il_800x800.7169952703_agqz.webp", href: "/design?product=tshirt" },
+  { name: "Long Sleeve Shirts", items: 5, top: false, image: "/Shirt/image copy 3.png", href: "/design?product=tshirt" },
+  { name: "Women Shirts", items: 5, top: false, image: "/Shirt/women.png", href: "/design?product=tshirt" },
+  { name: "Jackets", items: 5, top: false, image: "/Shirt/image copy 2.png", href: "/design?product=tshirt" },
 ];
 
 // Fisher-Yates shuffle
 function shuffleArray<T>(array: T[]): T[] {
-  let newArray = [...array];
+  const newArray = [...array];
   for (let i = newArray.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
@@ -92,16 +93,18 @@ export default function ProductCategories() {
                 viewport={{ once: false, margin: "-50px" }}
                 className={`group cursor-pointer ${getGridClasses(idx, cat.top)}`}
               >
-                <div className="w-full h-full md:aspect-square bg-[#F8F9F9] rounded-2xl flex flex-col items-center justify-center transition-transform group-hover:-translate-y-1 group-hover:shadow-lg relative overflow-hidden">
-                  <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors z-10 pointer-events-none"></div>
-                  <p className="absolute top-4 text-[var(--color-dark-blue)] font-bold text-xs md:text-sm z-20 bg-white/90 px-3 py-1 md:px-4 md:py-1.5 rounded-full shadow-sm backdrop-blur-sm">{cat.name}</p>
-                  <Image 
-                    src={cat.image} 
-                    alt={cat.name} 
-                    fill 
-                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                </div>
+                <Link href={cat.href || "/design"} className="block w-full h-full">
+                  <div className="w-full h-full md:aspect-square bg-[#F8F9F9] rounded-2xl flex flex-col items-center justify-center transition-transform group-hover:-translate-y-1 group-hover:shadow-lg relative overflow-hidden">
+                    <div className="absolute inset-0 bg-black/10 group-hover:bg-transparent transition-colors z-10 pointer-events-none"></div>
+                    <p className="absolute top-4 text-[var(--color-dark-blue)] font-bold text-xs md:text-sm z-20 bg-white/90 px-3 py-1 md:px-4 md:py-1.5 rounded-full shadow-sm backdrop-blur-sm">{cat.name}</p>
+                    <Image 
+                      src={cat.image} 
+                      alt={cat.name} 
+                      fill 
+                      className="object-cover transition-transform duration-700 group-hover:scale-110"
+                    />
+                  </div>
+                </Link>
               </motion.div>
             );
           })}
