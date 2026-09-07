@@ -94,7 +94,7 @@ export async function POST(req: Request) {
       `;
     });
 
-    const htmlContent = `
+    const adminHtmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <h1 style="color: #2563eb;">New Order Received!</h1>
         <p><strong>Order ID:</strong> ${orderId}</p>
@@ -109,29 +109,58 @@ export async function POST(req: Request) {
         <h2 style="border-bottom: 2px solid #eee; padding-bottom: 5px;">Design Instructions</h2>
         <p>${instructions || 'No specific instructions provided.'}</p>
 
+        <h2 style="border-bottom: 2px solid #eee; padding-bottom: 5px;">Cart Items</h2>
+        ${itemsHtml}
+      </div>
+    `;
+
+    const customerHtmlContent = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+        <h1 style="color: #10b981;">Thank You For Your Order!</h1>
+        <p>Hi ${customerName},</p>
+        <p>We have successfully received your order. We are currently processing it and will update you soon.</p>
+        <p><strong>Order ID:</strong> ${orderId}</p>
+        <p><strong>Total Amount:</strong> $${totalAmount}</p>
+        
+        <h2 style="border-bottom: 2px solid #eee; padding-bottom: 5px;">Shipping Address</h2>
+        <p>${address}</p>
+
         <h2 style="border-bottom: 2px solid #eee; padding-bottom: 5px;">Track Your Order</h2>
-        <p>You can track the status of your order at any time. Visit our website and go to the <strong>Track Order</strong> page, or use this link:</p>
+        <p>You can track the status of your order at any time on our website using the link below:</p>
         <p><a href="https://yourwebsite.com/track" style="color: #2563eb; font-weight: bold;">Track Order</a></p>
         <p>Enter your Order ID: <strong>${orderId}</strong></p>
 
-        <h2 style="border-bottom: 2px solid #eee; padding-bottom: 5px;">Cart Items</h2>
+        <h2 style="border-bottom: 2px solid #eee; padding-bottom: 5px;">Order Summary</h2>
         ${itemsHtml}
+        
+        <p style="margin-top: 30px; font-size: 0.9em; color: #666;">If you have any questions, feel free to reply to this email.</p>
       </div>
     `;
 
     const adminEmailToUse = process.env.EMAIL_USER || 'appointmentstudio@gmail.com';
     const customerEmailToUse = email || adminEmailToUse;
 
-    const info = await transporter.sendMail({
+    // Send email to Customer
+    const customerInfo = await transporter.sendMail({
       from: `"Demir Studio Orders" <${adminEmailToUse}>`,
       to: customerEmailToUse,
-      bcc: adminEmailToUse !== customerEmailToUse ? adminEmailToUse : undefined,
       subject: `Order Confirmation: ${orderId}`,
-      html: htmlContent,
+      html: customerHtmlContent,
       attachments: attachments
     });
 
-    return NextResponse.json({ success: true, messageId: info.messageId });
+    // Send email to Admin
+    if (adminEmailToUse !== customerEmailToUse) {
+      await transporter.sendMail({
+        from: `"Demir Studio Orders" <${adminEmailToUse}>`,
+        to: adminEmailToUse,
+        subject: `[Admin] New Order Received: ${orderId}`,
+        html: adminHtmlContent,
+        attachments: attachments
+      });
+    }
+
+    return NextResponse.json({ success: true, messageId: customerInfo.messageId });
   } catch (error: any) {
     console.error("Email Error:", error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });

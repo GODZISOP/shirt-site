@@ -34,6 +34,7 @@ interface OrderData {
   carrier: string;
   trackingNumber: string;
   shippingAddress: string;
+  cartData?: string;
 }
 
 const SAMPLE_ORDERS: Record<string, OrderData> = {
@@ -126,9 +127,10 @@ export default function TrackOrderPage() {
           statusStep: dbOrder.status_step || 1,
           placedDate: dbOrder.created_at ? new Date(dbOrder.created_at).toLocaleDateString() : "Recent Order",
           estimatedDelivery: "In 5-7 Business Days",
-          carrier: dbOrder.carrier || "FedEx Ground",
-          trackingNumber: dbOrder.tracking_number || "789123456789",
-          shippingAddress: dbOrder.shipping_address || "Standard Address on File"
+          carrier: dbOrder.carrier || "Standard Shipping",
+          trackingNumber: dbOrder.tracking_number || "Pending",
+          shippingAddress: dbOrder.shipping_address || "Standard Address on File",
+          cartData: dbOrder.cart_data || "[]"
         });
         setErrorMsg("");
         setIsLoading(false);
@@ -160,9 +162,10 @@ export default function TrackOrderPage() {
       statusStep: 3,
       placedDate: "Recent Order",
       estimatedDelivery: "Within 5-7 business days",
-      carrier: "UPS Ground Tracked",
-      trackingNumber: "1Z" + Math.floor(1000000000000000 + Math.random() * 9000000000000000),
-      shippingAddress: "Standard Shipping Address on File"
+      carrier: "Standard Shipping",
+      trackingNumber: "Pending",
+      shippingAddress: "Standard Shipping Address on File",
+      cartData: "[]"
     });
     setErrorMsg("");
     setIsLoading(false);
@@ -285,7 +288,6 @@ export default function TrackOrderPage() {
                   <span className="text-xl font-bold text-[var(--color-primary)] font-roboto-slab">
                     {activeOrder.estimatedDelivery}
                   </span>
-                  <span className="text-xs text-gray-500">Via {activeOrder.carrier}</span>
                 </div>
               </div>
 
@@ -322,27 +324,7 @@ export default function TrackOrderPage() {
                 </div>
               </div>
 
-              {/* Carrier Tracking Pill */}
-              <div className="mt-6 bg-[var(--color-stats-bg)] border border-[#e9ecd8] rounded-xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-[var(--color-primary)] text-white flex items-center justify-center shrink-0">
-                    <Truck className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <span className="text-gray-500 block">Carrier Tracking ({activeOrder.carrier})</span>
-                    <span className="font-mono font-bold text-[var(--color-dark-blue)] text-sm">{activeOrder.trackingNumber}</span>
-                  </div>
-                </div>
-                <a
-                  href={`https://www.google.com/search?q=${encodeURIComponent(activeOrder.carrier + " tracking " + activeOrder.trackingNumber)}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="px-4 py-2 bg-white hover:bg-gray-50 text-[var(--color-primary)] border border-gray-200 rounded-full font-bold transition-colors flex items-center gap-1.5 shadow-2xs"
-                >
-                  <span>Carrier Website</span>
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
-              </div>
+              {/* Removed Carrier Tracking Pill */}
             </div>
 
             {/* Order Details & Shipping Info */}
@@ -354,35 +336,69 @@ export default function TrackOrderPage() {
                   <Package className="w-4 h-4 text-[var(--color-primary)]" /> Items in Production
                 </h3>
 
-                <div className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 border border-gray-100">
-                  <div className="relative w-20 h-20 bg-white rounded-xl border border-gray-200 flex items-center justify-center p-2 shrink-0">
-                    <img
-                      src={activeOrder.image}
-                      alt={activeOrder.productName}
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-bold text-sm text-gray-900 truncate">
-                        {activeOrder.productName}
-                      </h4>
-                      <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md bg-blue-100 text-[var(--color-dark-blue)]">
-                        {activeOrder.technique}
-                      </span>
-                    </div>
+                <div className="flex flex-col gap-4">
+                  {(() => {
+                    let cartItems = [];
+                    try {
+                      if ((activeOrder as any).cartData && (activeOrder as any).cartData !== "[]") {
+                        cartItems = JSON.parse((activeOrder as any).cartData);
+                      } else {
+                        cartItems = [activeOrder];
+                      }
+                    } catch (e) {
+                      cartItems = [activeOrder];
+                    }
 
-                    <p className="text-xs text-gray-500 mt-1">
-                      Quantity: <strong>{activeOrder.quantity} units</strong> • Custom Decoration
-                    </p>
+                    return cartItems.map((item: any, idx: number) => {
+                      const defaultImg = item.itemType === 'hat' || item.productType === 'hat' ? '/hat-front.png' : '/shirt-front.png';
+                      const techniqueName = item.technique === 'embroidery' ? '3D Custom Embroidery' : item.technique === 'laser' ? 'Laser Engraved Patch' : 'Direct Print (DTF)';
+                      
+                      let images = [item.frontImage, item.backImage, item.leftImage, item.rightImage].filter(Boolean);
+                      if (images.length === 0) {
+                        try {
+                           images = item.image?.startsWith('[') ? JSON.parse(item.image) : [item.image].filter(Boolean);
+                        } catch(e) {
+                           images = [item.image].filter(Boolean);
+                        }
+                      }
+                      if (images.length === 0) images = [defaultImg];
 
-                    <div className="flex items-center gap-4 mt-2 text-xs">
-                      <span className="font-bold text-gray-900">Total: {activeOrder.total}</span>
-                      <span className="text-emerald-600 font-semibold flex items-center gap-1">
-                        <ShieldCheck className="w-3.5 h-3.5" /> 100% Quality Guaranteed
-                      </span>
-                    </div>
-                  </div>
+                      return (
+                        <div key={idx} className="flex flex-col sm:flex-row gap-4 p-4 rounded-xl bg-gray-50 border border-gray-100">
+                          <div className="flex flex-wrap gap-2 shrink-0">
+                            {images.map((img: string, i: number) => (
+                               <div key={i} className="relative w-16 h-16 bg-white rounded-xl border border-gray-200 flex items-center justify-center p-1">
+                                 <img src={img} className="w-full h-full object-contain" />
+                               </div>
+                            ))}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <h4 className="font-bold text-sm text-gray-900 truncate">
+                                Custom {item.productType || item.itemType || 'Apparel'}
+                              </h4>
+                              <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-md bg-blue-100 text-[var(--color-dark-blue)]">
+                                {techniqueName}
+                              </span>
+                            </div>
+        
+                            <p className="text-xs text-gray-500 mt-1">
+                              Color: <strong>{item.shirtColor || 'White'}</strong>
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              Quantity: <strong>{item.quantity || Object.values(item.quantities || {}).reduce((s: any, v: any) => s + parseInt(v || '0'), 0)} units</strong>
+                            </p>
+        
+                            <div className="flex items-center gap-4 mt-2 text-xs">
+                              <span className="text-emerald-600 font-semibold flex items-center gap-1">
+                                <ShieldCheck className="w-3.5 h-3.5" /> 100% Quality Guaranteed
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()}
                 </div>
 
                 <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between text-xs">
