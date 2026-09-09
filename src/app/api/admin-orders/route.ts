@@ -1,15 +1,31 @@
-import { NextResponse } from 'next/server';
+import { NextResponse, NextRequest } from 'next/server';
 import { supabase } from '@/lib/supabase';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
+    const { searchParams } = new URL(req.url);
+    const type = searchParams.get('type');
+
+    // Fetch quotes if requested
+    if (type === 'quotes') {
+      const { data, error } = await supabase
+        .from('quotes')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        return NextResponse.json({ success: true, quotes: [] });
+      }
+      return NextResponse.json({ success: true, quotes: data });
+    }
+
+    // Default: fetch orders
     const { data, error } = await supabase
       .from('orders')
       .select('*')
       .order('created_at', { ascending: false });
 
     if (error) {
-      // If table doesn't exist, error code is usually '42P01'
       if (error.code === '42P01') {
         return NextResponse.json({ success: false, error: 'The "orders" table does not exist in your Supabase project. Please create it first.' });
       }
@@ -21,6 +37,7 @@ export async function GET() {
     return NextResponse.json({ success: false, error: error.message });
   }
 }
+
 
 export async function PATCH(req: Request) {
   try {

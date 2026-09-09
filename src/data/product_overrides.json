@@ -1,0 +1,62 @@
+{
+  "custom-tshirts": {
+    "showOnHomepage": true,
+    "updated_at": "2026-09-09T11:32:00.000Z"
+  },
+  "custom-hoodies": {
+    "showOnHomepage": true,
+    "updated_at": "2026-09-09T11:32:00.000Z"
+  },
+  "custom-sweatshirts": {
+    "showOnHomepage": true,
+    "updated_at": "2026-09-09T11:32:00.000Z"
+  },
+  "youth-tees": {
+    "showOnHomepage": true,
+    "updated_at": "2026-09-09T11:32:00.000Z"
+  },
+  "performance-styles": {
+    "showOnHomepage": false,
+    "updated_at": "2026-09-09T11:32:59.089Z"
+  },
+  "women-shirts": {
+    "showOnHomepage": true,
+    "updated_at": "2026-09-09T11:32:00.000Z"
+  },
+  "long-sleeve-shirts": {
+    "showOnHomepage": true,
+    "updated_at": "2026-09-09T11:32:00.000Z"
+  },
+  "jackets": {
+    "showOnHomepage": true,
+    "updated_at": "2026-09-09T11:36:49.730Z"
+  },
+  "embroidered-hats": {
+    "showOnHomepage": false,
+    "updated_at": "2026-09-09T11:32:00.000Z"
+  },
+  "printed-hats": {
+    "showOnHomepage": false,
+    "updated_at": "2026-09-09T11:32:00.000Z"
+  },
+  "laser-hats": {
+    "showOnHomepage": false,
+    "updated_at": "2026-09-09T11:32:00.000Z"
+  },
+  "snapback-hats": {
+    "showOnHomepage": false,
+    "updated_at": "2026-09-09T11:32:00.000Z"
+  },
+  "embroidered-jeans": {
+    "showOnHomepage": false,
+    "updated_at": "2026-09-09T11:32:00.000Z"
+  },
+  "printed-jeans": {
+    "showOnHomepage": false,
+    "updated_at": "2026-09-09T11:32:00.000Z"
+  },
+  "laser-patch-jeans": {
+    "showOnHomepage": false,
+    "updated_at": "2026-09-09T11:32:00.000Z"
+  }
+}

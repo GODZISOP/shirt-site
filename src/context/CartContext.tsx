@@ -13,12 +13,17 @@ export interface CartItem {
   backImage?: string;
   leftImage?: string;
   rightImage?: string;
-  productType?: "tshirt" | "hat";
-  technique?: "print" | "embroidery" | "laser";
+  productType?: "tshirt" | "hat" | "jeans" | string;
+  technique?: "print" | "embroidery" | "laser" | string;
   pricingBreakdown?: {
     basePrice: number;
     decorationPrice: number;
   };
+  productName?: string;
+  productId?: string;
+  category?: string;
+  notes?: string;
+  isCustomDesign?: boolean;
 }
 
 interface CartContextType {
@@ -85,25 +90,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const getCartTotal = () => {
-    let rawTotal = cart.reduce((total, item) => total + parseFloat(item.totalPrice || "0"), 0);
-    
-    // Calculate total quantity across all items
-    let totalQty = 0;
-    cart.forEach(item => {
-      if (item.quantities) {
-        Object.values(item.quantities).forEach(qty => {
-          totalQty += (parseInt(qty as any) || 0);
-        });
-      }
-    });
-
-    // Apply wholesale discounts based on total quantity
-    let discountMultiplier = 1;
-    if (totalQty >= 100) discountMultiplier = 0.75; // 25% off
-    else if (totalQty >= 50) discountMultiplier = 0.82; // 18% off
-    else if (totalQty >= 25) discountMultiplier = 0.90; // 10% off
-
-    return rawTotal * discountMultiplier;
+    return cart.reduce((total, item) => {
+      const { finalTotal } = calculateItemDiscount(item);
+      return total + finalTotal;
+    }, 0);
   };
 
   return (
@@ -111,6 +101,41 @@ export function CartProvider({ children }: { children: ReactNode }) {
       {children}
     </CartContext.Provider>
   );
+}
+
+// ─── Per-Item Bulk Discount Helpers ───────────────
+export function getItemDiscountRate(qty: number): number {
+  if (qty >= 100) return 0.25; // 25% off for 100+ units of this product
+  if (qty >= 50) return 0.18;  // 18% off for 50+ units of this product
+  if (qty >= 25) return 0.10;  // 10% off for 25+ units of this product
+  return 0;                    // 0% off for < 25 units
+}
+
+export function calculateItemDiscount(item: CartItem): {
+  qty: number;
+  rawTotal: number;
+  discountRate: number;
+  discountAmount: number;
+  finalTotal: number;
+  effectiveUnitPrice: number;
+} {
+  const qty = item.quantities
+    ? Object.values(item.quantities).reduce((a, b) => a + (parseInt(b as any) || 0), 0)
+    : 1;
+  const rawTotal = parseFloat(item.totalPrice || "0");
+  const discountRate = getItemDiscountRate(qty);
+  const discountAmount = rawTotal * discountRate;
+  const finalTotal = rawTotal - discountAmount;
+  const effectiveUnitPrice = qty > 0 ? finalTotal / qty : rawTotal;
+
+  return {
+    qty,
+    rawTotal,
+    discountRate,
+    discountAmount,
+    finalTotal,
+    effectiveUnitPrice,
+  };
 }
 
 export function useCart() {

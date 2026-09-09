@@ -8,10 +8,10 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ data }: SidebarProps) {
-  const { items: cartItems } = useCart();
+  const { cart } = useCart();
   if (!data) return null;
 
-  const items = cartItems && cartItems.length > 0 ? cartItems : (data.items || []);
+  const items = cart && cart.length > 0 ? cart : (data.items || []);
   let totalQuantity = 0;
   let baseShirtsPrice = 0;
   const finalPrice = typeof data.finalPrice === 'string' ? parseFloat(data.finalPrice) : (data.finalPrice || 0);

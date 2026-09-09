@@ -42,7 +42,7 @@ export default function InstructionsStep({ data, onNext }: InstructionsStepProps
              return (
              <div key={item.id || index} style={{ marginBottom: '2rem', padding: '1rem', border: '1px solid #e2e8f0', borderRadius: '8px', background: '#f8fafc' }}>
                <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem', textTransform: 'capitalize' }}>
-                 Custom {item.productType} ({item.technique === 'embroidery' ? '3D Custom Embroidery' : item.technique === 'laser' ? 'Laser Engraved Patch' : 'Direct Print (DTF)'})
+                 {item.productName || `Custom ${item.productType}`} ({item.technique === 'embroidery' ? '3D Custom Embroidery' : item.technique === 'laser' ? 'Laser Engraved Patch' : 'Direct Print (DTF)'})
                </h3>
                <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
                   <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', maxWidth: '250px' }}>

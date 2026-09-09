@@ -6,6 +6,7 @@ import Image from "next/image";
 import { Phone, ChevronDown, ArrowRight, X, Menu, Sparkles, ShoppingCart } from "lucide-react";
 import logoImg from "../app/Shirt/image copy 20.png";
 import { useCart } from "@/context/CartContext";
+import CategoryIcon from "@/components/CategoryIcon";
 
 interface ProductItem {
   name: string;
@@ -42,6 +43,13 @@ const PRODUCT_CATEGORIES: ProductCategory[] = [
         image: "/Shirt/landing-embroidered-patches.jpg",
         href: "/design?cat=embroidery-hat",
       },
+      {
+        name: "Jeans",
+        sub: "Embroidered Denim",
+        price: "From $34.99",
+        image: "/Shirt/custom-jeans.jpg",
+        href: "/jeans",
+      },
     ],
   },
   {
@@ -63,6 +71,13 @@ const PRODUCT_CATEGORIES: ProductCategory[] = [
         image: "/Shirt/DTF-Xpress-print-finished-garment.jpg",
         href: "/design?cat=print-hat",
       },
+      {
+        name: "Jeans",
+        sub: "DTF Printed Denim",
+        price: "From $29.99",
+        image: "/Shirt/custom-jeans.jpg",
+        href: "/jeans",
+      },
     ],
   },
   {
@@ -83,6 +98,13 @@ const PRODUCT_CATEGORIES: ProductCategory[] = [
         price: "From $15.99",
         image: "/Shirt/laser-engraved-erie-pa-patch.webp",
         href: "/design?cat=laser-hat",
+      },
+      {
+        name: "Jeans",
+        sub: "Laser Patch Denim",
+        price: "From $39.99",
+        image: "/Shirt/custom-jeans.jpg",
+        href: "/jeans",
       },
     ],
   },
@@ -171,7 +193,7 @@ export default function Header() {
                 {/* Ultra-Clean Modern Luxury Dropdown */}
                 {isProductsOpen && (
                   <div 
-                    className="absolute top-full -left-8 w-[720px] bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] border border-gray-100 overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-150"
+                    className="absolute top-full -left-8 w-[780px] bg-white rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] border border-gray-100 overflow-hidden z-50 animate-in fade-in zoom-in-95 duration-150"
                     onMouseEnter={handleMouseEnter}
                     onMouseLeave={handleMouseLeave}
                   >
@@ -232,6 +254,27 @@ export default function Header() {
                       ))}
                     </div>
 
+                    {/* Category Quick Links */}
+                    <div className="px-6 py-3 bg-gray-50/60 border-t border-gray-100 flex items-center gap-4 text-xs">
+                      <span className="text-gray-400 font-medium">Browse:</span>
+                      <Link href="/shirts" onClick={() => setIsProductsOpen(false)} className="inline-flex items-center gap-1.5 font-semibold text-gray-600 hover:text-[#0070f3] transition-colors">
+                        <CategoryIcon category="shirts" size={13} />
+                        <span>Shirts</span>
+                      </Link>
+                      <Link href="/hats" onClick={() => setIsProductsOpen(false)} className="inline-flex items-center gap-1.5 font-semibold text-gray-600 hover:text-[#0070f3] transition-colors">
+                        <CategoryIcon category="hats" size={13} />
+                        <span>Hats</span>
+                      </Link>
+                      <Link href="/jeans" onClick={() => setIsProductsOpen(false)} className="inline-flex items-center gap-1.5 font-semibold text-gray-600 hover:text-[#0070f3] transition-colors">
+                        <CategoryIcon category="jeans" size={13} />
+                        <span>Jeans</span>
+                      </Link>
+                      <Link href="/shop" onClick={() => setIsProductsOpen(false)} className="inline-flex items-center gap-1.5 font-semibold text-gray-600 hover:text-[#0070f3] transition-colors">
+                        <CategoryIcon category="all" size={13} />
+                        <span>Shop All</span>
+                      </Link>
+                    </div>
+
                     {/* Clean Dropdown Footer Bar */}
                     <div className="px-6 py-3.5 bg-gray-50/80 border-t border-gray-100 flex items-center justify-between text-xs">
                       <div className="flex items-center gap-2 text-gray-600 font-medium">
@@ -260,7 +303,7 @@ export default function Header() {
                 href="/shop" 
                 className="text-sm font-semibold text-gray-700 hover:text-[#0070f3] transition-colors"
               >
-                Shop Ready-Made
+                Shop
               </Link>
               <Link 
                 href="/bulk-order" 
@@ -395,6 +438,22 @@ export default function Header() {
               </div>
             </div>
 
+            {/* Category Quick Links (Mobile) */}
+            <div className="flex gap-2 flex-wrap px-1">
+              <Link href="/shirts" onClick={() => setIsMobileMenuOpen(false)} className="flex-1 min-w-[80px] flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-blue-50 text-xs font-bold text-[#0070f3]">
+                <CategoryIcon category="shirts" size={14} />
+                <span>Shirts</span>
+              </Link>
+              <Link href="/hats" onClick={() => setIsMobileMenuOpen(false)} className="flex-1 min-w-[80px] flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-blue-50 text-xs font-bold text-[#0070f3]">
+                <CategoryIcon category="hats" size={14} />
+                <span>Hats</span>
+              </Link>
+              <Link href="/jeans" onClick={() => setIsMobileMenuOpen(false)} className="flex-1 min-w-[80px] flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-blue-50 text-xs font-bold text-[#0070f3]">
+                <CategoryIcon category="jeans" size={14} />
+                <span>Jeans</span>
+              </Link>
+            </div>
+
             {/* Other Mobile Links */}
             <div className="flex flex-col gap-1 border-b border-gray-100 pb-3">
               <Link
@@ -409,7 +468,7 @@ export default function Header() {
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="p-2.5 text-sm font-semibold text-gray-800 hover:text-[#0070f3] rounded-lg hover:bg-gray-50"
               >
-                Shop Ready-Made
+                Shop
               </Link>
               <Link
                 href="/bulk-order"
