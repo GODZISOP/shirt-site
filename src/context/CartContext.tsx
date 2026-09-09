@@ -6,6 +6,7 @@ import { get, set, del } from 'idb-keyval';
 export interface CartItem {
   id: string;
   shirtColor?: string;
+  shirtColorHex?: string;
   quantities?: Record<string, number>;
   pricePerShirt?: number;
   totalPrice?: string;
@@ -76,7 +77,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const addToCart = (item: Omit<CartItem, 'id'>) => {
     const newItem = { ...item, id: Date.now().toString() };
-    setCart((prev) => [...prev, newItem]);
+    setCart((prev) => [newItem, ...prev]);
   };
 
   const removeFromCart = (id: string) => {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -39,11 +39,99 @@ export default function ProductDetailPage() {
     return products.find((p) => p.id === productId);
   }, [products, productId]);
 
+  const availableColors = useMemo(() => {
+    if (!product) return AVAILABLE_COLORS;
+    if (product.colors && product.colors.length > 0) {
+      return product.colors;
+    }
+    if (product.category === "jeans") {
+      return [
+        { name: "Denim Blue", hex: "#2563eb" },
+        { name: "Dark Blue", hex: "#1e3a8a" },
+        { name: "Black Denim", hex: "#1e293b" },
+        { name: "Light Wash", hex: "#60a5fa" },
+      ];
+    }
+    if (product.id === "custom-hoodies") {
+      return [
+        { name: "Black", hex: "#111827" },
+        { name: "Heather Grey", hex: "#9ca3af" },
+        { name: "Navy Blue", hex: "#1e3a8a" },
+        { name: "Forest Green", hex: "#166534" },
+        { name: "Crimson Red", hex: "#dc2626" },
+        { name: "White", hex: "#ffffff" },
+      ];
+    }
+    if (product.id === "custom-sweatshirts" || product.id === "printed-hats") {
+      return [
+        { name: "Heather Grey", hex: "#9ca3af" },
+        { name: "Black", hex: "#111827" },
+        { name: "Navy Blue", hex: "#1e3a8a" },
+        { name: "White", hex: "#ffffff" },
+        { name: "Forest Green", hex: "#166534" },
+      ];
+    }
+    if (product.id === "laser-hats") {
+      return [
+        { name: "Charcoal", hex: "#334155" },
+        { name: "Black", hex: "#111827" },
+        { name: "Navy Blue", hex: "#1e3a8a" },
+      ];
+    }
+    if (product.id === "long-sleeve-shirts") {
+      return [
+        { name: "Crimson Red", hex: "#dc2626" },
+        { name: "Black", hex: "#111827" },
+        { name: "Navy Blue", hex: "#1e3a8a" },
+        { name: "White", hex: "#ffffff" },
+      ];
+    }
+    if (product.id === "performance-styles") {
+      return [
+        { name: "Navy Blue", hex: "#1e3a8a" },
+        { name: "Black", hex: "#111827" },
+        { name: "Royal Blue", hex: "#2563eb" },
+        { name: "Heather Grey", hex: "#9ca3af" },
+      ];
+    }
+    if (product.id.startsWith("custom-")) {
+      return [
+        { name: "As Pictured", hex: "#1e293b" },
+        { name: "Black", hex: "#111827" },
+        { name: "White", hex: "#ffffff" },
+        { name: "Navy Blue", hex: "#1e3a8a" },
+      ];
+    }
+    return AVAILABLE_COLORS;
+  }, [product]);
+
   const [selectedColor, setSelectedColor] = useState(AVAILABLE_COLORS[0]);
   const [selectedSize, setSelectedSize] = useState("L");
   const [quantity, setQuantity] = useState(1);
   const [addedNotification, setAddedNotification] = useState(false);
   const [activeImgIndex, setActiveImgIndex] = useState(0);
+
+  const initialSyncedId = useRef<string | null>(null);
+
+  // Sync color with product defaults once per product
+  useEffect(() => {
+    if (!product) return;
+    if (initialSyncedId.current === product.id) return;
+    initialSyncedId.current = product.id;
+
+    if (product.defaultColor) {
+      const match = availableColors.find(
+        (c) => c.name.toLowerCase() === product.defaultColor?.toLowerCase()
+      );
+      if (match) {
+        setSelectedColor(match);
+        return;
+      }
+    }
+    if (availableColors.length > 0) {
+      setSelectedColor(availableColors[0]);
+    }
+  }, [product?.id]);
 
   const productImages = useMemo(() => {
     if (!product) return [];
@@ -86,17 +174,25 @@ export default function ProductDetailPage() {
     .slice(0, 4);
 
   const handleAddToCart = () => {
+    const chosenTechnique =
+      product.name.toLowerCase().includes("embroidery")
+        ? "embroidery"
+        : product.name.toLowerCase().includes("laser")
+        ? "laser"
+        : (product.techniques?.[0] || "print");
+
     addToCart({
       productName: product.name,
       productId: product.id,
       category: product.category,
       shirtColor: selectedColor.name,
+      shirtColorHex: selectedColor.hex,
       quantities: { [selectedSize]: quantity },
       pricePerShirt: unitPrice,
       totalPrice: totalPrice,
       frontImage: activeImage,
       productType: product.category === "hats" ? "hat" : (product.category === "jeans" ? "jeans" : "tshirt"),
-      technique: (product.techniques?.[0] || "print") as any,
+      technique: chosenTechnique as any,
       isCustomDesign: false,
     });
 
@@ -272,7 +368,7 @@ export default function ProductDetailPage() {
                   </label>
                 </div>
                 <div className="flex items-center gap-2.5 flex-wrap">
-                  {AVAILABLE_COLORS.map((color) => {
+                  {availableColors.map((color) => {
                     const isSelected = selectedColor.name === color.name;
                     return (
                       <button

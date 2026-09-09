@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import styles from './Checkout.module.css';
+import { useCart } from '@/context/CartContext';
 
 interface ShippingStepProps {
   data: any;
@@ -7,6 +8,7 @@ interface ShippingStepProps {
 }
 
 export default function ShippingStep({ data, onNext }: ShippingStepProps) {
+  const { cart } = useCart();
   const [formData, setFormData] = useState(data?.shippingDetails || {
     firstName: '',
     lastName: '',
@@ -112,7 +114,7 @@ export default function ShippingStep({ data, onNext }: ShippingStepProps) {
           <div className={styles.summarySidebar} style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
             <h3 style={{ margin: '0 0 1rem 0' }}>Order Summary</h3>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-              <span>Subtotal ({data?.totalQuantity || 0} items)</span>
+              <span>Subtotal ({cart.length || data?.itemCount || 1} item{(cart.length || data?.itemCount) !== 1 ? 's' : ''})</span>
               <span>${data?.totalPrice || '0.00'}</span>
             </div>
             

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styles from './Checkout.module.css';
 import { useCart } from '@/context/CartContext';
+import { getColorHex, getColorName } from '@/lib/products';
 
 interface InstructionsStepProps {
   data: any;
@@ -19,6 +20,16 @@ export default function InstructionsStep({ data, onNext }: InstructionsStepProps
       return;
     }
     onNext({ instructions });
+  };
+
+  const getDisplayTechnique = (item: any) => {
+    if (item.productName?.toLowerCase().includes('embroidery') || item.technique === 'embroidery') {
+      return '3D Custom Embroidery';
+    }
+    if (item.productName?.toLowerCase().includes('laser') || item.technique === 'laser') {
+      return 'Laser Engraved Patch';
+    }
+    return 'Direct Print (DTF)';
   };
 
   return (
@@ -42,7 +53,7 @@ export default function InstructionsStep({ data, onNext }: InstructionsStepProps
              return (
              <div key={item.id || index} style={{ marginBottom: '2rem', padding: '1rem', border: '1px solid #e2e8f0', borderRadius: '8px', background: '#f8fafc' }}>
                <h3 style={{ margin: '0 0 1rem 0', fontSize: '1.1rem', textTransform: 'capitalize' }}>
-                 {item.productName || `Custom ${item.productType}`} ({item.technique === 'embroidery' ? '3D Custom Embroidery' : item.technique === 'laser' ? 'Laser Engraved Patch' : 'Direct Print (DTF)'})
+                 {item.productName || `Custom ${item.productType}`} ({getDisplayTechnique(item)})
                </h3>
                <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
                   <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', maxWidth: '250px' }}>
@@ -55,15 +66,31 @@ export default function InstructionsStep({ data, onNext }: InstructionsStepProps
                     ))}
                   </div>
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                      <span style={{ fontWeight: 600 }}>Color:</span> 
-                      <div style={{ width: '16px', height: '16px', backgroundColor: item.shirtColor || '#fff', border: '1px solid #ddd', borderRadius: '50%' }}></div>
-                      <span style={{ textTransform: 'capitalize' }}>{item.shirtColor}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
+                      <span style={{ fontWeight: 600, color: '#475569' }}>Color:</span> 
+                      <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#fff', border: '1px solid #cbd5e1', borderRadius: '9999px', padding: '0.15rem 0.55rem 0.15rem 0.25rem', boxShadow: '0 1px 2px rgba(0,0,0,0.04)' }}>
+                        <div style={{
+                          width: '18px',
+                          height: '18px',
+                          backgroundColor: getColorHex(item.shirtColor, (item as any).shirtColorHex),
+                          border: '1.5px solid #94a3b8',
+                          borderRadius: '50%',
+                          display: 'inline-block',
+                          flexShrink: 0
+                        }}></div>
+                        <span style={{ textTransform: 'capitalize', fontWeight: 600, color: '#1e293b' }}>
+                          {getColorName(item.shirtColor)}
+                        </span>
+                      </div>
                     </div>
                     <div style={{ marginBottom: '0.5rem', fontSize: '0.9rem' }}>
-                      {views.map((v, i) => (
-                        <div key={i}>{v.name}: {v.dec ? 'Decorated' : 'Blank'}</div>
-                      ))}
+                      {item.isCustomDesign === false ? (
+                        <div style={{ color: '#64748b' }}>Design: As Pictured (Ready-Made)</div>
+                      ) : (
+                        views.map((v, i) => (
+                          <div key={i}>{v.name}: {v.dec ? 'Decorated' : 'Blank'}</div>
+                        ))
+                      )}
                     </div>
                     {item.notes && (
                       <div>
@@ -130,7 +157,7 @@ export default function InstructionsStep({ data, onNext }: InstructionsStepProps
           <div className={styles.summarySidebar} style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
             <h3 style={{ margin: '0 0 1rem 0' }}>Order Summary</h3>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-              <span>Subtotal ({data?.totalQuantity || 0} items)</span>
+              <span>Subtotal ({cart.length} item{cart.length !== 1 ? 's' : ''})</span>
               <span>${data?.totalPrice || '0.00'}</span>
             </div>
             

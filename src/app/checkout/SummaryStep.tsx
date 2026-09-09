@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Trash2 } from 'lucide-react';
 import { useCart, calculateItemDiscount } from '@/context/CartContext';
+import { getColorHex, getColorName } from '@/lib/products';
 import styles from './Checkout.module.css';
 
 interface SummaryStepProps {
@@ -13,6 +14,16 @@ export default function SummaryStep({ data, onNext, onUpdate }: SummaryStepProps
   const { cart, removeFromCart, getCartTotal } = useCart();
   const [shippingOption, setShippingOption] = useState<'standard' | 'rush'>(data?.shippingOption === 'rush' ? 'rush' : 'standard');
   const [error, setError] = useState('');
+
+  const getDisplayTechnique = (item: any) => {
+    if (item.productName?.toLowerCase().includes('embroidery') || item.technique === 'embroidery') {
+      return '3D Custom Embroidery';
+    }
+    if (item.productName?.toLowerCase().includes('laser') || item.technique === 'laser') {
+      return 'Laser Engraved Patch';
+    }
+    return 'Direct Print (DTF)';
+  };
   
   const hasCartItems = cart && cart.length > 0;
 
@@ -45,7 +56,8 @@ export default function SummaryStep({ data, onNext, onUpdate }: SummaryStepProps
       totalPrice: basePriceNum.toFixed(2),
       shippingOption,
       finalPrice,
-      totalQuantity
+      totalQuantity,
+      itemCount: cart.length,
     });
   };
 
@@ -88,22 +100,42 @@ export default function SummaryStep({ data, onNext, onUpdate }: SummaryStepProps
                         </div>
                       ))}
                     </div>
-                    <div>
+                    <div style={{ flex: 1 }}>
                       <h4 style={{ margin: '0 0 0.5rem 0', textTransform: 'capitalize' }}>
-                        {item.productName || `Custom ${item.productType}`} ({item.technique === 'embroidery' ? '3D Custom Embroidery' : item.technique === 'laser' ? 'Laser Engraved Patch' : 'Direct Print (DTF)'})
+                        {item.productName || `Custom ${item.productType}`} ({getDisplayTechnique(item)})
                       </h4>
                       {sizeString && <p style={{ margin: '0 0 0.25rem 0', color: '#666', fontSize: '0.85rem' }}>Sizes: {sizeString}</p>}
                       {item.shirtColor && (
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', margin: '0 0 0.25rem 0', color: '#666', fontSize: '0.85rem' }}>
-                          Color: <div style={{ width: '12px', height: '12px', backgroundColor: item.shirtColor || '#fff', border: '1px solid #ddd', borderRadius: '50%' }}></div> <span style={{ textTransform: 'capitalize' }}>{item.shirtColor}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: '0.2rem 0 0.4rem 0', fontSize: '0.85rem' }}>
+                          <span style={{ color: '#64748b' }}>Color:</span>
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: '#fff', border: '1px solid #cbd5e1', borderRadius: '9999px', padding: '0.15rem 0.55rem 0.15rem 0.25rem', boxShadow: '0 1px 2px rgba(0,0,0,0.04)' }}>
+                            <div style={{
+                              width: '18px',
+                              height: '18px',
+                              backgroundColor: getColorHex(item.shirtColor, (item as any).shirtColorHex),
+                              border: '1.5px solid #94a3b8',
+                              borderRadius: '50%',
+                              display: 'inline-block',
+                              flexShrink: 0
+                            }}></div>
+                            <span style={{ textTransform: 'capitalize', fontWeight: 600, color: '#1e293b' }}>
+                              {getColorName(item.shirtColor)}
+                            </span>
+                          </div>
                         </div>
                       )}
-                      {item.isCustomDesign !== false && views.length > 1 && (
-                        <div style={{ margin: '0 0 0.25rem 0', color: '#666', fontSize: '0.85rem' }}>
-                          {views.map((v, i) => (
-                            <div key={i}>{v.name}: {v.dec ? 'Decorated' : 'Blank'}</div>
-                          ))}
+                      {item.isCustomDesign === false ? (
+                        <div style={{ margin: '0 0 0.25rem 0', color: '#64748b', fontSize: '0.85rem' }}>
+                          Design: As Pictured (Ready-Made)
                         </div>
+                      ) : (
+                        views.length > 1 && (
+                          <div style={{ margin: '0 0 0.25rem 0', color: '#666', fontSize: '0.85rem' }}>
+                            {views.map((v, i) => (
+                              <div key={i}>{v.name}: {v.dec ? 'Decorated' : 'Blank'}</div>
+                            ))}
+                          </div>
+                        )
                       )}
 
                       {/* Pricing Display with Per-Item Bulk Discount */}

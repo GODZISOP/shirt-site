@@ -10,7 +10,7 @@ import {
   Layers, DollarSign, ExternalLink, Plus, Trash2,
   Upload, Image as ImageIcon
 } from 'lucide-react';
-import { PRODUCTS, CATEGORY_INFO, TECHNIQUE_INFO, type ProductCategory, type Product } from '@/lib/products';
+import { PRODUCTS, CATEGORY_INFO, TECHNIQUE_INFO, getColorHex, getColorName, type ProductCategory, type Product } from '@/lib/products';
 import CategoryIcon from '@/components/CategoryIcon';
 import { useProducts } from '@/lib/useProducts';
 
@@ -81,11 +81,24 @@ function OrderCard({ order, saving, onUpdate }: OrderCardProps) {
     try { return JSON.parse(order.cart_data); } catch { return []; }
   }, [order.cart_data]);
 
+  const totalPcs = useMemo(() => {
+    if (cartItems.length > 0) {
+      return cartItems.reduce((acc: number, item: any) => {
+        const itemSum = Object.values(item.quantities || {}).reduce((s: number, q: any) => s + (parseInt(q as string, 10) || 0), 0);
+        return acc + (itemSum > 0 ? itemSum : 1);
+      }, 0);
+    }
+    return order.quantity || 1;
+  }, [cartItems, order.quantity]);
+
   const images = useMemo(() => {
     if (cartItems.length > 0) {
-      return cartItems.flatMap((item: any) =>
-        [item.frontImage, item.backImage, item.leftImage, item.rightImage].filter(Boolean)
-      );
+      return cartItems.flatMap((item: any) => {
+        const raw = [item.frontImage, item.backImage, item.leftImage, item.rightImage].filter(Boolean);
+        if (raw.length > 0) return raw;
+        const matched = PRODUCTS.find((p) => p.id === item.productId || p.name === item.productName);
+        return matched?.image ? [matched.image] : [];
+      });
     }
     try {
       return order.image_url?.startsWith('[') ? JSON.parse(order.image_url) : [order.image_url].filter(Boolean);
@@ -114,7 +127,17 @@ function OrderCard({ order, saving, onUpdate }: OrderCardProps) {
           <div className="flex items-center gap-3 shrink-0">
             <div className="text-right">
               <div className="text-lg font-bold text-slate-900">${order.total_price}</div>
-              <div className="text-[11px] text-slate-400">{order.quantity} items</div>
+              <div className="text-[11px] text-slate-500 font-medium">
+                {cartItems.length > 0 ? (
+                  <span>
+                    <strong className="text-indigo-600 font-bold">{cartItems.length}</strong> {cartItems.length === 1 ? 'item' : 'items'}{' '}
+                    <span className="text-slate-300">·</span>{' '}
+                    <strong className="text-slate-700 font-bold">{totalPcs}</strong> pcs
+                  </span>
+                ) : (
+                  <span>{order.quantity || 1} pcs</span>
+                )}
+              </div>
             </div>
             <StatusBadge step={order.status_step || 1} />
           </div>
@@ -163,9 +186,9 @@ function OrderCard({ order, saving, onUpdate }: OrderCardProps) {
       {(cartItems.length > 0 || images.length > 1) && (
         <>
           <button onClick={() => setExpanded(!expanded)}
-            className="w-full flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium text-slate-400 bg-slate-50/80 border-t border-slate-100 hover:text-slate-600 hover:bg-slate-50 transition-colors">
+            className="w-full flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium text-slate-500 bg-slate-50/80 border-t border-slate-100 hover:text-slate-700 hover:bg-slate-100 transition-colors">
             {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-            {expanded ? 'Hide' : 'View'} {cartItems.length || images.length} Item{(cartItems.length || images.length) > 1 ? 's' : ''} Details
+            {expanded ? 'Hide' : 'View'} {cartItems.length || images.length} Item{(cartItems.length || images.length) > 1 ? 's' : ''} Details ({totalPcs} pcs)
           </button>
           {expanded && (
             <div className="border-t border-slate-100 bg-slate-50/50 p-4">
@@ -174,35 +197,89 @@ function OrderCard({ order, saving, onUpdate }: OrderCardProps) {
                   let techniqueName = 'Direct Print (DTF)';
                   if (item.technique === 'embroidery') techniqueName = '3D Custom Embroidery';
                   if (item.technique === 'laser') techniqueName = 'Laser Engraved Patch';
-                  const itemImages = [item.frontImage, item.backImage, item.leftImage, item.rightImage].filter(Boolean);
-                  const sizes = item.quantities ? Object.entries(item.quantities).filter(([_, qty]) => parseInt(qty as string) > 0).map(([size, qty]) => `${size.toUpperCase()}: ${qty}`).join(', ') : '';
+
+                  const matched = PRODUCTS.find((p) => p.id === item.productId || p.name.toLowerCase() === (item.productName || '').toLowerCase());
+                  const defaultImg = matched?.image || (item.productType === 'hat' ? '/hat-front.png' : '/shirt-front.png');
+                  const rawImages = [item.frontImage, item.backImage, item.leftImage, item.rightImage].filter(Boolean);
+                  const itemImages = rawImages.length > 0 ? rawImages : [defaultImg];
+
+                  const sizeEntries = item.quantities
+                    ? Object.entries(item.quantities).filter(([_, qty]) => parseInt(qty as string) > 0)
+                    : [];
+                  const sizes = sizeEntries.map(([size, qty]) => `${size.toUpperCase()}: ${qty}`).join(', ');
+                  const itemTotalQty = sizeEntries.reduce((sum, [_, qty]) => sum + (parseInt(qty as string, 10) || 0), 0);
+
+                  const unitPrice = item.pricePerShirt ?? item.price;
+                  const itemTotal = item.totalPrice
+                    ? parseFloat(item.totalPrice)
+                    : unitPrice
+                    ? unitPrice * (itemTotalQty || 1)
+                    : 0;
+
+                  const colorHex = getColorHex(item.shirtColorHex || item.shirtColor);
+                  const colorName = getColorName(item.shirtColor);
+                  const productName = item.productName || matched?.name || `Custom ${item.productType || 'Apparel'}`;
+
                   return (
-                    <div key={idx} className="bg-white rounded-xl p-3.5 border border-slate-100">
-                      <div className="text-xs font-bold text-slate-700 mb-2 flex items-center gap-1.5">
-                        <span>Item {idx + 1} ·</span>
-                        <CategoryIcon category={item.productType === 'hat' ? 'hats' : 'shirts'} size={14} className="text-slate-500" />
-                        <span>{techniqueName}</span>
-                      </div>
-                      <div className="space-y-1 text-[11px] text-slate-500">
-                        <div><span className="font-medium text-slate-600">Color:</span> {item.shirtColor || 'White'}</div>
-                        <div className="flex gap-3 flex-wrap">
-                          <span>Front: {item.frontColors?.length > 0 ? '✅' : '—'}</span>
-                          <span>Back: {item.backColors?.length > 0 ? '✅' : '—'}</span>
-                          <span>Left: {item.leftColors?.length > 0 ? '✅' : '—'}</span>
-                          <span>Right: {item.rightColors?.length > 0 ? '✅' : '—'}</span>
+                    <div key={idx} className="bg-white rounded-xl p-3.5 border border-slate-100 shadow-xs">
+                      <div className="text-xs font-bold text-slate-800 mb-2.5 flex items-center justify-between gap-1.5 flex-wrap">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="text-[11px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-bold">#{idx + 1}</span>
+                          <span className="text-slate-900 font-bold truncate">{productName}</span>
                         </div>
-                        {sizes && <div><span className="font-medium text-slate-600">Sizes:</span> {sizes}</div>}
-                        {item.price && (
-                          <div className="font-semibold text-slate-700 pt-1">
-                            ${(item.price * Object.values(item.quantities || {}).reduce((sum: number, q: any) => sum + parseInt((q as string) || '0'), 0)).toFixed(2)}
-                            <span className="font-normal text-slate-400"> (${item.price.toFixed(2)}/ea)</span>
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100 shrink-0">
+                          <CategoryIcon category={item.productType === 'hat' ? 'hats' : (item.productType === 'jeans' ? 'jeans' : 'shirts')} size={11} />
+                          {techniqueName}
+                        </span>
+                      </div>
+                      <div className="space-y-1.5 text-[11px] text-slate-600">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-medium text-slate-500">Color:</span>
+                          <span
+                            className="w-3.5 h-3.5 rounded-full border border-slate-300 shadow-xs inline-block shrink-0"
+                            style={{ backgroundColor: colorHex }}
+                          />
+                          <span className="font-semibold text-slate-800">{colorName}</span>
+                          {item.shirtColor?.startsWith('#') && (
+                            <span className="text-[10px] text-slate-400 font-mono">({item.shirtColor})</span>
+                          )}
+                        </div>
+                        <div>
+                          <span className="font-medium text-slate-500">Quantity:</span>{' '}
+                          <span className="font-bold text-slate-900">{itemTotalQty > 0 ? `${itemTotalQty} pcs` : '1 pc'}</span>
+                          {sizes && <span className="text-slate-500 ml-1.5 font-medium">({sizes})</span>}
+                        </div>
+                        {itemTotal > 0 && (
+                          <div className="font-semibold text-slate-800 pt-0.5">
+                            ${itemTotal.toFixed(2)}
+                            {unitPrice ? <span className="font-normal text-slate-400"> (${unitPrice.toFixed(2)}/ea)</span> : null}
                           </div>
                         )}
+                        <div>
+                          {item.isCustomDesign === false || item.productId ? (
+                            <span className="inline-block text-[10px] text-slate-500 bg-slate-50 px-2 py-0.5 rounded border border-slate-100 font-medium">
+                              Catalog Product (As Pictured)
+                            </span>
+                          ) : (
+                            <div className="flex gap-2.5 flex-wrap text-[10px] text-slate-500">
+                              <span>Front: {item.frontColors?.length > 0 ? '✅' : '—'}</span>
+                              <span>Back: {item.backColors?.length > 0 ? '✅' : '—'}</span>
+                              <span>Left: {item.leftColors?.length > 0 ? '✅' : '—'}</span>
+                              <span>Right: {item.rightColors?.length > 0 ? '✅' : '—'}</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
                       {itemImages.length > 0 && (
                         <div className="flex gap-2 mt-3 flex-wrap">
                           {itemImages.map((img: string, i: number) => (
-                            <img key={i} src={img} className="w-14 h-14 object-cover rounded-lg border border-slate-100" loading="lazy" alt={`Design ${i + 1}`} />
+                            <img
+                              key={i}
+                              src={img}
+                              className="w-14 h-14 object-cover rounded-lg border border-slate-100 bg-slate-50"
+                              loading="lazy"
+                              alt={`${productName} view ${i + 1}`}
+                            />
                           ))}
                         </div>
                       )}
