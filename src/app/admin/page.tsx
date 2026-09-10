@@ -6,7 +6,7 @@ import {
   Search, CheckCircle2, Package, Save, RefreshCw,
   ShieldCheck, ChevronDown, ChevronUp, Clock,
   BarChart3, ShoppingBag, AlertCircle, X,
-  ClipboardList, Tag, MessageSquare, Eye, EyeOff,
+  ClipboardList, Tag, Eye, EyeOff,
   Layers, DollarSign, ExternalLink, Plus, Trash2,
   Upload, Image as ImageIcon
 } from 'lucide-react';
@@ -1222,91 +1222,8 @@ function ProductsTab() {
   );
 }
 
-// ─── QUOTES TAB ──────────────────────────────────
-function QuotesTab() {
-  const [quotes, setQuotes] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchQuotes();
-  }, []);
-
-  const fetchQuotes = async () => {
-    try {
-      const res = await fetch('/api/admin-orders?type=quotes');
-      const data = await res.json();
-      if (data.success) {
-        setQuotes(data.quotes || []);
-      }
-    } catch (err) {
-      console.error('Failed to load quotes', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="space-y-4">
-        <SkeletonCard />
-        <SkeletonCard />
-      </div>
-    );
-  }
-
-  if (quotes.length === 0) {
-    return (
-      <div className="text-center py-20 bg-white rounded-2xl border border-slate-100">
-        <MessageSquare className="mx-auto h-12 w-12 text-slate-200 mb-4" />
-        <h3 className="text-base font-semibold text-slate-900 mb-1">No quotes yet</h3>
-        <p className="text-sm text-slate-400">Bulk quote requests from customers will appear here</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="space-y-4">
-      {quotes.map((quote, idx) => (
-        <div key={idx} className="bg-white rounded-2xl border border-slate-100 p-5 hover:shadow-md transition-shadow">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <div className="font-bold text-slate-900">{quote.name}</div>
-              <div className="text-xs text-slate-500">{quote.email} {quote.phone && `· ${quote.phone}`}</div>
-              {quote.company && <div className="text-xs text-slate-400 mt-1">🏢 {quote.company}</div>}
-            </div>
-            <div className="text-right">
-              <div className="text-xs text-slate-400">
-                {new Date(quote.created_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-              </div>
-            </div>
-          </div>
-          <div className="mt-3 grid grid-cols-3 gap-3">
-            <div className="bg-slate-50 rounded-xl p-3">
-              <div className="text-[11px] font-semibold text-slate-400 uppercase">Product</div>
-              <div className="text-sm font-semibold text-slate-800 mt-1">{quote.product_type}</div>
-            </div>
-            <div className="bg-slate-50 rounded-xl p-3">
-              <div className="text-[11px] font-semibold text-slate-400 uppercase">Technique</div>
-              <div className="text-sm font-semibold text-slate-800 mt-1">{quote.technique}</div>
-            </div>
-            <div className="bg-slate-50 rounded-xl p-3">
-              <div className="text-[11px] font-semibold text-slate-400 uppercase">Quantity</div>
-              <div className="text-sm font-semibold text-slate-800 mt-1">{quote.quantity} units</div>
-            </div>
-          </div>
-          {quote.notes && (
-            <div className="mt-3 text-xs text-slate-500 bg-amber-50 p-3 rounded-xl border border-amber-100">
-              <span className="font-semibold text-amber-700">Notes:</span> {quote.notes}
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
-  );
-}
-
 // ─── MAIN ADMIN PANEL ────────────────────────────
-type AdminTab = 'orders' | 'products' | 'quotes';
+type AdminTab = 'orders' | 'products';
 
 export default function AdminPanel() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -1399,7 +1316,6 @@ export default function AdminPanel() {
   const tabs: { key: AdminTab; label: string; icon: any; count?: number }[] = [
     { key: 'orders', label: 'Orders', icon: ClipboardList, count: orders.length },
     { key: 'products', label: 'Products', icon: Tag, count: PRODUCTS.length },
-    { key: 'quotes', label: 'Quotes', icon: MessageSquare },
   ];
 
   return (
@@ -1517,7 +1433,6 @@ export default function AdminPanel() {
         )}
 
         {activeTab === 'products' && <ProductsTab />}
-        {activeTab === 'quotes' && <QuotesTab />}
       </main>
     </div>
   );

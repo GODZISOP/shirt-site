@@ -132,10 +132,10 @@ export default function JeansPage() {
             Get wholesale pricing on custom denim orders of 25+ units. Perfect for teams, events, and brands.
           </p>
           <Link
-            href="/bulk-order"
+            href="/design?product=jeans"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[var(--color-primary)] text-white font-semibold text-sm hover:bg-[var(--color-primary-hover)] transition-colors"
           >
-            Request Quote <ArrowRight size={14} />
+            Start Customizing <ArrowRight size={14} />
           </Link>
         </div>
       </main>

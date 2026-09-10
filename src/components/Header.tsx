@@ -43,13 +43,6 @@ const PRODUCT_CATEGORIES: ProductCategory[] = [
         image: "/Shirt/landing-embroidered-patches.jpg",
         href: "/design?cat=embroidery-hat",
       },
-      {
-        name: "Jeans",
-        sub: "Embroidered Denim",
-        price: "From $34.99",
-        image: "/Shirt/custom-jeans.jpg",
-        href: "/jeans",
-      },
     ],
   },
   {
@@ -71,13 +64,6 @@ const PRODUCT_CATEGORIES: ProductCategory[] = [
         image: "/Shirt/DTF-Xpress-print-finished-garment.jpg",
         href: "/design?cat=print-hat",
       },
-      {
-        name: "Jeans",
-        sub: "DTF Printed Denim",
-        price: "From $29.99",
-        image: "/Shirt/custom-jeans.jpg",
-        href: "/jeans",
-      },
     ],
   },
   {
@@ -98,13 +84,6 @@ const PRODUCT_CATEGORIES: ProductCategory[] = [
         price: "From $15.99",
         image: "/Shirt/laser-engraved-erie-pa-patch.webp",
         href: "/design?cat=laser-hat",
-      },
-      {
-        name: "Jeans",
-        sub: "Laser Patch Denim",
-        price: "From $39.99",
-        image: "/Shirt/custom-jeans.jpg",
-        href: "/jeans",
       },
     ],
   },
@@ -265,10 +244,6 @@ export default function Header() {
                         <CategoryIcon category="hats" size={13} />
                         <span>Hats</span>
                       </Link>
-                      <Link href="/jeans" onClick={() => setIsProductsOpen(false)} className="inline-flex items-center gap-1.5 font-semibold text-gray-600 hover:text-[#0070f3] transition-colors">
-                        <CategoryIcon category="jeans" size={13} />
-                        <span>Jeans</span>
-                      </Link>
                       <Link href="/shop" onClick={() => setIsProductsOpen(false)} className="inline-flex items-center gap-1.5 font-semibold text-gray-600 hover:text-[#0070f3] transition-colors">
                         <CategoryIcon category="all" size={13} />
                         <span>Shop All</span>
@@ -304,12 +279,6 @@ export default function Header() {
                 className="text-sm font-semibold text-gray-700 hover:text-[#0070f3] transition-colors"
               >
                 Shop
-              </Link>
-              <Link 
-                href="/bulk-order" 
-                className="text-sm font-semibold text-gray-700 hover:text-[#0070f3] transition-colors"
-              >
-                Bulk Quotes
               </Link>
               <Link 
                 href="/track-order" 
@@ -448,10 +417,6 @@ export default function Header() {
                 <CategoryIcon category="hats" size={14} />
                 <span>Hats</span>
               </Link>
-              <Link href="/jeans" onClick={() => setIsMobileMenuOpen(false)} className="flex-1 min-w-[80px] flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl bg-blue-50 text-xs font-bold text-[#0070f3]">
-                <CategoryIcon category="jeans" size={14} />
-                <span>Jeans</span>
-              </Link>
             </div>
 
             {/* Other Mobile Links */}
@@ -469,13 +434,6 @@ export default function Header() {
                 className="p-2.5 text-sm font-semibold text-gray-800 hover:text-[#0070f3] rounded-lg hover:bg-gray-50"
               >
                 Shop
-              </Link>
-              <Link
-                href="/bulk-order"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="p-2.5 text-sm font-semibold text-gray-800 hover:text-[#0070f3] rounded-lg hover:bg-gray-50"
-              >
-                Bulk Quotes
               </Link>
               <Link
                 href="/track-order"

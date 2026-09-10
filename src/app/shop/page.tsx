@@ -208,10 +208,10 @@ export default function ShopPage() {
         <div className="text-center mt-16 mb-8">
           <p className="text-slate-500 text-sm mb-4">Can't find what you need?</p>
           <Link
-            href="/bulk-order"
+            href="/design"
             className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-[var(--color-primary)] text-white font-semibold hover:bg-[var(--color-primary-hover)] transition-colors shadow-lg"
           >
-            Request a Custom Quote <ArrowRight size={16} />
+            Design Custom Apparel <ArrowRight size={16} />
           </Link>
         </div>
       </main>
