@@ -90,28 +90,68 @@ export function useProducts() {
   // Live sync across tabs/components
   useEffect(() => {
     const handleUpdate = (e: any) => {
-      const { id, image, images, showOnHomepage } = e.detail || {};
+      const { id, ...updates } = e.detail || {};
       if (id) {
         setOverrides((prev) => ({
           ...prev,
           [id]: {
             ...(prev[id] || {}),
-            ...(image ? { image } : {}),
-            ...(images ? { images } : {}),
-            ...(showOnHomepage !== undefined ? { showOnHomepage } : {}),
+            ...updates,
           },
         }));
       }
     };
+    const handleRefresh = () => {
+      fetchProducts();
+    };
     if (typeof window !== "undefined") {
       window.addEventListener("product_image_updated", handleUpdate);
       window.addEventListener("product_homepage_toggled", handleUpdate);
+      window.addEventListener("product_updated", handleUpdate);
+      window.addEventListener("refresh_products", handleRefresh);
       return () => {
         window.removeEventListener("product_image_updated", handleUpdate);
         window.removeEventListener("product_homepage_toggled", handleUpdate);
+        window.removeEventListener("product_updated", handleUpdate);
+        window.removeEventListener("refresh_products", handleRefresh);
       };
     }
-  }, []);
+  }, [fetchProducts]);
+
+  // Update complete product attributes (name, price, desc, category, techniques, badge, etc.)
+  const updateProduct = async (id: string, updates: Partial<Product>) => {
+    try {
+      const res = await fetch("/api/products", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, ...updates }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        const newOverrides = {
+          ...overrides,
+          [id]: { ...(overrides[id] || {}), ...updates },
+        };
+        setOverrides(newOverrides);
+        localStorage.setItem(OVERRIDES_STORAGE_KEY, JSON.stringify(newOverrides));
+
+        // Update customProducts if it's a custom-added product
+        setCustomProducts((prev) =>
+          prev.map((p) => (p.id === id ? { ...p, ...updates } : p))
+        );
+
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(
+            new CustomEvent("product_updated", { detail: { id, ...updates } })
+          );
+        }
+        return { success: true };
+      }
+      return { success: false, error: data.error || "Failed to update product" };
+    } catch (err: any) {
+      return { success: false, error: err.message };
+    }
+  };
 
   // Toggle Show on Homepage
   const toggleHomepageVisibility = async (id: string, show: boolean) => {
@@ -205,6 +245,7 @@ export function useProducts() {
     loading,
     refresh: fetchProducts,
     addProduct,
+    updateProduct,
     updateProductImage,
     updateProductImages,
     toggleHomepageVisibility,

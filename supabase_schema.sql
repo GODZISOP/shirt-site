@@ -1,6 +1,7 @@
 -- ==========================================================
 -- DEMIR STUDIO - SUPABASE DATABASE SCHEMA
--- Run this whole script in your Supabase SQL Editor
+-- Run this whole script in your Supabase SQL Editor:
+-- https://supabase.com/dashboard/project/_/sql
 -- ==========================================================
 
 -- 1. ORDERS TABLE
@@ -48,7 +49,7 @@ CREATE TABLE IF NOT EXISTS public.quotes (
 CREATE INDEX IF NOT EXISTS idx_quotes_created_at ON public.quotes(created_at DESC);
 
 
--- 3. PRODUCTS TABLE (Custom Products added via Admin Panel)
+-- 3. PRODUCTS TABLE (Products managed via Admin Panel)
 CREATE TABLE IF NOT EXISTS public.products (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
@@ -57,11 +58,17 @@ CREATE TABLE IF NOT EXISTS public.products (
     techniques JSONB DEFAULT '["print"]'::jsonb,
     "priceFrom" NUMERIC(10, 2) NOT NULL DEFAULT 9.99,
     image TEXT,
+    images JSONB DEFAULT '[]'::jsonb,
     href TEXT,
     badge TEXT,
     popular BOOLEAN DEFAULT false,
+    "showOnHomepage" BOOLEAN DEFAULT true,
     created_at TIMESTAMPTZ DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+-- Ensure columns exist if table was previously created
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS images JSONB DEFAULT '[]'::jsonb;
+ALTER TABLE public.products ADD COLUMN IF NOT EXISTS "showOnHomepage" BOOLEAN DEFAULT true;
 
 CREATE INDEX IF NOT EXISTS idx_products_category ON public.products(category);
 CREATE INDEX IF NOT EXISTS idx_products_created_at ON public.products(created_at DESC);
@@ -69,7 +76,7 @@ CREATE INDEX IF NOT EXISTS idx_products_created_at ON public.products(created_at
 
 -- ==========================================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
--- Ensures public visitors & admin can read/write without 403 errors
+-- Ensures public checkout, tracking, & admin work seamlessly
 -- ==========================================================
 
 -- Enable RLS

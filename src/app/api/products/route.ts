@@ -147,7 +147,7 @@ export async function POST(req: Request) {
 export async function PATCH(req: Request) {
   try {
     const body = await req.json();
-    const { id, image, images, name, priceFrom, showOnHomepage } = body;
+    const { id, image, images, name, priceFrom, description, category, techniques, badge, showOnHomepage } = body;
 
     if (!id) {
       return NextResponse.json({ success: false, error: "Missing product id" }, { status: 400 });
@@ -158,16 +158,23 @@ export async function PATCH(req: Request) {
       : undefined;
     const primaryImage = image?.trim() || (cleanImages && cleanImages.length > 0 ? cleanImages[0] : undefined);
 
+    const updatesObj: Record<string, any> = {};
+    if (primaryImage !== undefined) updatesObj.image = primaryImage;
+    if (cleanImages !== undefined) updatesObj.images = cleanImages;
+    if (name !== undefined) updatesObj.name = name.trim();
+    if (priceFrom !== undefined) updatesObj.priceFrom = parseFloat(priceFrom) || 0;
+    if (description !== undefined) updatesObj.description = description.trim();
+    if (category !== undefined) updatesObj.category = category;
+    if (techniques !== undefined && Array.isArray(techniques)) updatesObj.techniques = techniques;
+    if (badge !== undefined) updatesObj.badge = badge.trim();
+    if (showOnHomepage !== undefined) updatesObj.showOnHomepage = Boolean(showOnHomepage);
+    updatesObj.updated_at = new Date().toISOString();
+
     // 1. Update overrides file (applies to both default and custom products!)
     const overrides = readOverrides();
     overrides[id] = {
       ...(overrides[id] || {}),
-      ...(primaryImage ? { image: primaryImage } : {}),
-      ...(cleanImages ? { images: cleanImages } : {}),
-      ...(name ? { name: name.trim() } : {}),
-      ...(priceFrom ? { priceFrom: parseFloat(priceFrom) } : {}),
-      ...(showOnHomepage !== undefined ? { showOnHomepage: Boolean(showOnHomepage) } : {}),
-      updated_at: new Date().toISOString(),
+      ...updatesObj,
     };
     writeOverrides(overrides);
 
@@ -175,25 +182,32 @@ export async function PATCH(req: Request) {
     const local = readLocalProducts();
     const customIdx = local.findIndex((p: any) => p.id === id);
     if (customIdx !== -1) {
-      if (primaryImage) local[customIdx].image = primaryImage;
-      if (cleanImages) local[customIdx].images = cleanImages;
-      if (name) local[customIdx].name = name.trim();
-      if (priceFrom) local[customIdx].priceFrom = parseFloat(priceFrom);
-      if (showOnHomepage !== undefined) local[customIdx].showOnHomepage = Boolean(showOnHomepage);
+      local[customIdx] = {
+        ...local[customIdx],
+        ...updatesObj,
+      };
       writeLocalProducts(local);
     }
 
     // 3. Try updating Supabase non-blockingly
-    if (primaryImage) {
-      withTimeout(supabase.from("products").update({ image: primaryImage }).eq("id", id), 1000).catch(() => {});
+    const dbUpdatePayload: Record<string, any> = {};
+    if (primaryImage) dbUpdatePayload.image = primaryImage;
+    if (name) dbUpdatePayload.name = name.trim();
+    if (priceFrom) dbUpdatePayload.priceFrom = parseFloat(priceFrom);
+    if (description !== undefined) dbUpdatePayload.description = description.trim();
+    if (category) dbUpdatePayload.category = category;
+    if (techniques) dbUpdatePayload.techniques = techniques;
+    if (badge !== undefined) dbUpdatePayload.badge = badge.trim();
+    if (showOnHomepage !== undefined) dbUpdatePayload.showOnHomepage = Boolean(showOnHomepage);
+
+    if (Object.keys(dbUpdatePayload).length > 0) {
+      withTimeout(supabase.from("products").update(dbUpdatePayload).eq("id", id), 1000).catch(() => {});
     }
 
     return NextResponse.json({
       success: true,
       id,
-      image: primaryImage,
-      images: cleanImages,
-      showOnHomepage,
+      updates: updatesObj,
       overrides,
     });
   } catch (err: any) {

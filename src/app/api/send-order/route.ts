@@ -24,7 +24,7 @@ function getEnv(key: string): string {
 export async function POST(req: Request) {
   try {
     const data = await req.json();
-    const { orderId, customerName, email, phone, address, instructions, cartItems, totalAmount } = data;
+    const { orderId, customerName, email, phone, address, instructions, cartItems, totalAmount, paymentMethod } = data;
 
     // Create reusable transporter object using SMTP transport
     const transporter = nodemailer.createTransport({
@@ -41,6 +41,10 @@ export async function POST(req: Request) {
     });
 
     const adminEmail = getEnv('EMAIL_USER') || 'appointmentstudio@gmail.com';
+    const whatsappPhone = getEnv('NEXT_PUBLIC_WHATSAPP_NUMBER') || '15045643000';
+    const cleanStudioWhatsApp = whatsappPhone.replace(/\D/g, '');
+    const cleanCustomerPhone = (phone || '').replace(/\D/g, '');
+
     const attachments: any[] = [];
     let attachmentCounter = 1;
     let itemsHtml = '';
@@ -189,16 +193,26 @@ export async function POST(req: Request) {
       `;
     });
 
+    const paymentMethodLabel = 'Direct WhatsApp Payment / Bank Transfer';
+
     const adminHtmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 650px; margin: 0 auto; padding: 20px; color: #334155;">
         <h1 style="color: #2563eb; margin-bottom: 8px;">New Order Received!</h1>
         <p style="font-size: 16px; margin-top: 0;">Order ID: <strong style="color: #0f172a;">${orderId}</strong></p>
         <p style="font-size: 18px; font-weight: bold; color: #16a34a;">Total Amount: $${totalAmount}</p>
+        <p style="font-size: 15px; margin: 6px 0;"><strong>Payment Method:</strong> <span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:4px; font-weight:bold;">${paymentMethodLabel}</span></p>
         
         <h2 style="border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; font-size: 16px; margin-top: 24px;">Customer Details</h2>
         <p style="margin: 4px 0;"><strong>Name:</strong> ${customerName}</p>
         <p style="margin: 4px 0;"><strong>Email:</strong> ${email}</p>
         <p style="margin: 4px 0;"><strong>Phone:</strong> ${phone || 'Not provided'}</p>
+        ${cleanCustomerPhone ? `
+          <p style="margin: 8px 0;">
+            <a href="https://wa.me/${cleanCustomerPhone}?text=${encodeURIComponent(`Hi ${customerName}, this is Demir Studio regarding your order #${orderId}.`)}" style="display:inline-block; padding: 8px 14px; background-color: #25D366; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 13px;">
+              💬 Chat with Customer on WhatsApp
+            </a>
+          </p>
+        ` : ''}
         <p style="margin: 4px 0;"><strong>Shipping Address:</strong> ${address}</p>
 
         <h2 style="border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; font-size: 16px; margin-top: 24px;">Design Instructions</h2>
@@ -211,15 +225,28 @@ export async function POST(req: Request) {
       </div>
     `;
 
+    const customerWhatsappUrl = `https://wa.me/${cleanStudioWhatsApp}?text=${encodeURIComponent(`Hi Demir Studio! Regarding my order #${orderId}, I would like to complete my payment of $${totalAmount}.`)}`;
+
     const customerHtmlContent = `
       <div style="font-family: Arial, sans-serif; max-width: 650px; margin: 0 auto; padding: 20px; color: #334155;">
         <h1 style="color: #10b981; margin-bottom: 8px;">Thank You For Your Order!</h1>
         <p style="font-size: 15px;">Hi ${customerName},</p>
-        <p style="font-size: 14px; line-height: 1.5;">We have successfully received your order and our team is preparing it. We will notify you once your order begins production and ships.</p>
+        <p style="font-size: 14px; line-height: 1.5;">We have successfully received your order. Our team is reviewing the custom specifications and getting it ready for production.</p>
         
         <div style="background: #f1f5f9; padding: 16px; border-radius: 8px; margin: 20px 0;">
           <p style="margin: 4px 0; font-size: 15px;"><strong>Order ID:</strong> ${orderId}</p>
           <p style="margin: 4px 0; font-size: 16px; font-weight: bold; color: #0f172a;"><strong>Total Amount:</strong> $${totalAmount}</p>
+          <p style="margin: 4px 0; font-size: 14px; color: #475569;"><strong>Payment Method:</strong> ${paymentMethodLabel}</p>
+        </div>
+
+        <div style="background: #e6f7ec; border: 1px solid #bbf7d0; padding: 16px; border-radius: 8px; margin: 20px 0;">
+          <h3 style="margin: 0 0 6px 0; color: #15803d; font-size: 15px;">💬 Payment & Confirmation via WhatsApp</h3>
+          <p style="margin: 0 0 10px 0; color: #166534; font-size: 13px; line-height: 1.5;">
+            To finalize payment (Bank Transfer / Easy Payment) and confirm printing details, please tap the button below to message our team directly on WhatsApp:
+          </p>
+          <a href="${customerWhatsappUrl}" style="display: inline-block; padding: 10px 20px; background-color: #25D366; color: #ffffff; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px;">
+            Open WhatsApp to Complete Payment
+          </a>
         </div>
         
         <h2 style="border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; font-size: 16px; margin-top: 24px;">Shipping Address</h2>
@@ -232,11 +259,11 @@ export async function POST(req: Request) {
         <h2 style="border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; font-size: 16px; margin-top: 24px;">Order Items Breakdown</h2>
         ${itemsHtml}
         
-        <p style="margin-top: 30px; font-size: 13px; color: #64748b;">If you have any questions or need to make changes to your order, feel free to reply directly to this email or reach us on WhatsApp.</p>
+        <p style="margin-top: 30px; font-size: 13px; color: #64748b;">If you have any questions or need to make changes to your order, feel free to reply directly to this email or reach us on WhatsApp at +${cleanStudioWhatsApp}.</p>
       </div>
     `;
 
-    const adminEmailToUse = process.env.EMAIL_USER || 'appointmentstudio@gmail.com';
+    const adminEmailToUse = getEnv('EMAIL_USER') || 'appointmentstudio@gmail.com';
     const customerEmailToUse = email || adminEmailToUse;
 
     // Send email to Customer

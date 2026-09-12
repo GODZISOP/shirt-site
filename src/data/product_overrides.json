@@ -1,7 +1,17 @@
 {
   "custom-tshirts": {
     "showOnHomepage": true,
-    "updated_at": "2026-09-09T11:32:00.000Z"
+    "updated_at": "2026-09-12T08:47:36.759Z",
+    "name": "Custom T-Shirts",
+    "priceFrom": 8.99,
+    "description": "Ultra-vibrant full-color prints on premium cotton teees",
+    "category": "shirts",
+    "techniques": [
+      "print",
+      "embroidery",
+      "laser"
+    ],
+    "badge": "Best Seller"
   },
   "custom-hoodies": {
     "showOnHomepage": true,

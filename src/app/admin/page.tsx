@@ -8,7 +8,7 @@ import {
   BarChart3, ShoppingBag, AlertCircle, X,
   ClipboardList, Tag, Eye, EyeOff,
   Layers, DollarSign, ExternalLink, Plus, Trash2,
-  Upload, Image as ImageIcon
+  Upload, Image as ImageIcon, Pencil
 } from 'lucide-react';
 import { PRODUCTS, CATEGORY_INFO, TECHNIQUE_INFO, getColorHex, getColorName, type ProductCategory, type Product } from '@/lib/products';
 import CategoryIcon from '@/components/CategoryIcon';
@@ -315,17 +315,29 @@ function ProductsTab() {
   const {
     products,
     addProduct,
+    updateProduct,
     deleteProduct,
     updateProductImage,
     updateProductImages,
     toggleHomepageVisibility,
     loading: productsLoading,
+    refresh: refreshProducts,
   } = useProducts();
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<'all' | ProductCategory>('all');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Edit Product Details Modal State
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editCategory, setEditCategory] = useState<ProductCategory>('shirts');
+  const [editPrice, setEditPrice] = useState('');
+  const [editDesc, setEditDesc] = useState('');
+  const [editBadge, setEditBadge] = useState('');
+  const [editTechniques, setEditTechniques] = useState<('print' | 'embroidery' | 'laser')[]>(['print']);
+  const [isUpdatingProduct, setIsUpdatingProduct] = useState(false);
 
   // Edit Multi-Image Modal State
   const [editingImageProduct, setEditingImageProduct] = useState<Product | null>(null);
@@ -346,6 +358,52 @@ function ProductsTab() {
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  const openEditProduct = (prod: Product) => {
+    setEditingProduct(prod);
+    setEditName(prod.name || '');
+    setEditCategory(prod.category || 'shirts');
+    setEditPrice(prod.priceFrom !== undefined ? prod.priceFrom.toString() : '');
+    setEditDesc(prod.description || '');
+    setEditBadge(prod.badge || '');
+    setEditTechniques(Array.isArray(prod.techniques) && prod.techniques.length > 0 ? [...prod.techniques] : ['print']);
+  };
+
+  const toggleEditTechnique = (tech: 'print' | 'embroidery' | 'laser') => {
+    if (editTechniques.includes(tech)) {
+      if (editTechniques.length === 1) return;
+      setEditTechniques(editTechniques.filter(t => t !== tech));
+    } else {
+      setEditTechniques([...editTechniques, tech]);
+    }
+  };
+
+  const handleSaveProductDetails = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingProduct) return;
+    if (!editName.trim() || !editPrice) {
+      alert('Product name and price are required.');
+      return;
+    }
+
+    setIsUpdatingProduct(true);
+    const res = await updateProduct(editingProduct.id, {
+      name: editName.trim(),
+      category: editCategory,
+      priceFrom: parseFloat(editPrice) || 0,
+      description: editDesc.trim(),
+      badge: editBadge.trim() || undefined,
+      techniques: editTechniques,
+    });
+    setIsUpdatingProduct(false);
+
+    if (res.success) {
+      showToast(`Product "${editName.trim()}" updated successfully!`);
+      setEditingProduct(null);
+    } else {
+      alert(res.error || 'Failed to update product');
+    }
   };
 
   const openEditImage = (prod: Product) => {
@@ -617,13 +675,29 @@ function ProductsTab() {
           </div>
         </div>
 
-        <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="w-full md:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#0070f3] hover:bg-blue-600 text-white text-xs font-bold rounded-xl shadow-sm hover:shadow transition-all shrink-0 cursor-pointer"
-        >
-          <Plus size={16} />
-          Add Product
-        </button>
+        <div className="flex items-center gap-2 w-full md:w-auto shrink-0">
+          <button
+            type="button"
+            onClick={async () => {
+              if (refreshProducts) await refreshProducts();
+              showToast("Products reloaded from database!");
+            }}
+            disabled={productsLoading}
+            className="inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-all cursor-pointer shadow-xs disabled:opacity-50"
+            title="Reload products from database"
+          >
+            <RefreshCw size={13} className={productsLoading ? 'animate-spin text-[#0070f3]' : ''} />
+            <span>{productsLoading ? 'Reloading...' : 'Reload Products'}</span>
+          </button>
+
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-[#0070f3] hover:bg-blue-600 text-white text-xs font-bold rounded-xl shadow-sm hover:shadow transition-all shrink-0 cursor-pointer"
+          >
+            <Plus size={16} />
+            Add Product
+          </button>
+        </div>
       </div>
 
       {/* Products Table */}
@@ -734,18 +808,26 @@ function ProductsTab() {
                         </button>
                       </td>
                       <td className="px-5 py-3.5 text-right">
-                        <div className="flex items-center justify-end gap-2">
+                        <div className="flex items-center justify-end gap-1.5 flex-wrap">
+                          <button
+                            onClick={() => openEditProduct(product)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-amber-800 bg-amber-50 hover:bg-amber-100 border border-amber-200 rounded-lg transition-colors cursor-pointer shadow-xs"
+                            title={`Edit "${product.name}" details (name, price, category, etc.)`}
+                          >
+                            <Pencil size={13} />
+                            <span>Edit Product</span>
+                          </button>
                           <button
                             onClick={() => openEditImage(product)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#0070f3] bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors cursor-pointer"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[#0070f3] bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors cursor-pointer shadow-xs"
                             title="Manage product images (upload as many as you want)"
                           >
                             <ImageIcon size={13} />
-                            <span>Manage Images ({product.images?.length || 1})</span>
+                            <span>Images ({product.images?.length || 1})</span>
                           </button>
                           <button
                             onClick={() => handleDeleteProduct(product.id, product.name)}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-colors cursor-pointer shadow-xs"
+                            className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-colors cursor-pointer shadow-xs"
                             title={`Delete "${product.name}"`}
                           >
                             <Trash2 size={13} />
@@ -1012,6 +1094,193 @@ function ProductsTab() {
         </div>
       )}
 
+      {/* ─── EDIT PRODUCT DETAILS MODAL ────────────────── */}
+      {editingProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl max-w-xl w-full max-h-[90vh] overflow-y-auto shadow-2xl border border-slate-100 p-6 sm:p-8">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-700">
+                  <Pencil size={18} />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900">Edit Product Details</h3>
+                  <p className="text-xs text-slate-400">Update name, price, category, and specifications</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setEditingProduct(null)}
+                className="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 transition-colors cursor-pointer"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveProductDetails} className="mt-6 space-y-5">
+              {/* Product Name */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                  Product Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g., Heavyweight Vintage Fleece Hoodie"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0070f3]/20 focus:border-[#0070f3]"
+                />
+              </div>
+
+              {/* Category & Price */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                    Category *
+                  </label>
+                  <select
+                    value={editCategory}
+                    onChange={(e) => setEditCategory(e.target.value as ProductCategory)}
+                    className="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0070f3]/20 focus:border-[#0070f3]"
+                  >
+                    <option value="shirts">Shirts & Tops</option>
+                    <option value="hats">Hats & Caps</option>
+                    <option value="jeans">Pants & Jeans</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                    Starting Price ($) *
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-sm">$</span>
+                    <input
+                      type="number"
+                      step="0.01"
+                      min="0"
+                      required
+                      placeholder="19.99"
+                      value={editPrice}
+                      onChange={(e) => setEditPrice(e.target.value)}
+                      className="w-full pl-8 pr-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0070f3]/20 focus:border-[#0070f3]"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Description */}
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                  Description
+                </label>
+                <textarea
+                  rows={3}
+                  placeholder="Describe fabric, fit, GSM, or styling notes..."
+                  value={editDesc}
+                  onChange={(e) => setEditDesc(e.target.value)}
+                  className="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0070f3]/20 focus:border-[#0070f3] resize-none"
+                />
+              </div>
+
+              {/* Badge & Techniques */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                    Badge (Optional)
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="New / Best Seller / Hot"
+                    value={editBadge}
+                    onChange={(e) => setEditBadge(e.target.value)}
+                    className="w-full px-4 py-2.5 text-sm bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0070f3]/20 focus:border-[#0070f3]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                    Available Techniques
+                  </label>
+                  <div className="flex gap-2 flex-wrap pt-1">
+                    {(['print', 'embroidery', 'laser'] as const).map(tech => {
+                      const selected = editTechniques.includes(tech);
+                      return (
+                        <button
+                          type="button"
+                          key={tech}
+                          onClick={() => toggleEditTechnique(tech)}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors cursor-pointer ${
+                            selected
+                              ? 'bg-[#0070f3] text-white shadow-xs'
+                              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                          }`}
+                        >
+                          {TECHNIQUE_INFO[tech].label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Image Manage Link */}
+              <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-200 flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 overflow-hidden relative shrink-0">
+                    <Image src={editingProduct.image} alt={editingProduct.name} fill className="object-cover" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-bold text-slate-800">Product Photos</div>
+                    <div className="text-[11px] text-slate-500">{editingProduct.images?.length || 1} images in gallery</div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const prod = editingProduct;
+                    setEditingProduct(null);
+                    openEditImage(prod);
+                  }}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-[#0070f3] bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors cursor-pointer"
+                >
+                  <ImageIcon size={13} />
+                  <span>Manage Images</span>
+                </button>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => setEditingProduct(null)}
+                  className="px-5 py-2.5 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-xl transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isUpdatingProduct}
+                  className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#0070f3] hover:bg-blue-600 text-white text-xs font-bold rounded-xl shadow-sm hover:shadow transition-all disabled:opacity-50 cursor-pointer"
+                >
+                  {isUpdatingProduct ? (
+                    <>
+                      <RefreshCw size={14} className="animate-spin" />
+                      <span>Saving Changes...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Save size={14} />
+                      <span>Save Changes</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* ─── CHANGE IMAGE MODAL ──────────────────────── */}
       {editingImageProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
@@ -1236,20 +1505,42 @@ export default function AdminPanel() {
   const [statusFilter, setStatusFilter] = useState<number | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [activeTab, setActiveTab] = useState<AdminTab>('orders');
+  const [adminToast, setAdminToast] = useState<string | null>(null);
+
+  const showAdminToast = (msg: string) => {
+    setAdminToast(msg);
+    setTimeout(() => setAdminToast(null), 3000);
+  };
 
   useEffect(() => {
-    if (isAuthenticated) fetchOrders();
+    if (isAuthenticated) handleRefresh();
   }, [isAuthenticated]);
 
-  const fetchOrders = async () => {
+  const handleRefresh = async () => {
     setRefreshing(true);
+    setError('');
     try {
+      // 1. Refresh orders from Supabase / API
       const res = await fetch('/api/admin-orders');
       const data = await res.json();
-      if (data.success) setOrders(data.orders || []);
-      else setError(data.error);
-    } catch { setError('Failed to load orders.'); }
-    finally { setLoading(false); setRefreshing(false); }
+      if (data.success) {
+        setOrders(data.orders || []);
+      } else {
+        setError(data.error);
+      }
+
+      // 2. Dispatch event so ProductsTab also reloads fresh products
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('refresh_products'));
+      }
+
+      showAdminToast('Dashboard & Products refreshed successfully!');
+    } catch {
+      setError('Failed to load orders.');
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
   };
 
   const updateOrder = async (orderId: string, updates: any) => {
@@ -1336,9 +1627,11 @@ export default function AdminPanel() {
             <a href="/" target="_blank" className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-500 hover:text-slate-700 transition-colors">
               <ExternalLink size={13} /> View Site
             </a>
-            <button onClick={fetchOrders} disabled={refreshing}
-              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium text-slate-600 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors disabled:opacity-50">
-              <RefreshCw size={13} className={refreshing ? 'animate-spin' : ''} /> Refresh
+            <button onClick={handleRefresh} disabled={refreshing}
+              className="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-all disabled:opacity-50 cursor-pointer shadow-xs active:scale-95"
+              title="Refresh all orders and products">
+              <RefreshCw size={13} className={refreshing ? 'animate-spin text-[#0070f3]' : ''} />
+              <span>{refreshing ? 'Refreshing...' : 'Refresh'}</span>
             </button>
           </div>
         </div>
@@ -1434,6 +1727,14 @@ export default function AdminPanel() {
 
         {activeTab === 'products' && <ProductsTab />}
       </main>
+
+      {/* Admin Toast Notification */}
+      {adminToast && (
+        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-2 border border-slate-700 animate-in slide-in-from-bottom-5">
+          <CheckCircle2 size={16} className="text-emerald-400" />
+          <span className="text-sm font-medium">{adminToast}</span>
+        </div>
+      )}
     </div>
   );
 }
