@@ -69,9 +69,14 @@ function StatCard({ icon: Icon, label, value, color }: { icon: any; label: strin
 }
 
 // ─── ORDER CARD ──────────────────────────────────
-interface OrderCardProps { order: any; saving: string | null; onUpdate: (orderId: string, updates: any) => void; }
+interface OrderCardProps { 
+  order: any; 
+  saving: string | null; 
+  onUpdate: (orderId: string, updates: any) => void;
+  onDelete?: (orderId: string) => void;
+}
 
-function OrderCard({ order, saving, onUpdate }: OrderCardProps) {
+function OrderCard({ order, saving, onUpdate, onDelete }: OrderCardProps) {
   const [expanded, setExpanded] = useState(false);
   const isSaving = saving === order.order_id;
   const statusInfo = getStatusInfo(order.status_step || 1);
@@ -139,7 +144,19 @@ function OrderCard({ order, saving, onUpdate }: OrderCardProps) {
                 )}
               </div>
             </div>
-            <StatusBadge step={order.status_step || 1} />
+            <div className="flex items-center gap-2">
+              <StatusBadge step={order.status_step || 1} />
+              {onDelete && (
+                <button
+                  type="button"
+                  onClick={() => onDelete(order.order_id)}
+                  className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                  title={`Delete order ${order.order_id}`}
+                >
+                  <Trash2 size={15} />
+                </button>
+              )}
+            </div>
           </div>
         </div>
         <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -1554,6 +1571,41 @@ export default function AdminPanel() {
     finally { setSaving(null); }
   };
 
+  const deleteOrder = async (orderId: string) => {
+    if (!confirm(`Are you sure you want to delete order "${orderId}"?`)) return;
+    try {
+      const res = await fetch(`/api/admin-orders?order_id=${encodeURIComponent(orderId)}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        setOrders(prev => prev.filter(o => o.order_id !== orderId));
+        showAdminToast(`Order ${orderId} deleted successfully.`);
+      } else {
+        alert('Failed to delete order: ' + data.error);
+      }
+    } catch {
+      alert('Error deleting order');
+    }
+  };
+
+  const clearAllOrders = async () => {
+    if (!confirm('Are you sure you want to CLEAR ALL test orders? This will permanently delete all orders from the database so the client gets a fresh 0-order dashboard.')) return;
+    try {
+      const res = await fetch('/api/admin-orders?all=true', { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) {
+        setOrders([]);
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('demir_studio_orders');
+        }
+        showAdminToast('All test orders cleared! Fresh 0-order dashboard ready.');
+      } else {
+        alert('Failed to clear orders: ' + data.error);
+      }
+    } catch {
+      alert('Error clearing orders');
+    }
+  };
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (passwordInput === 'demirStudioo@') setIsAuthenticated(true);
@@ -1705,7 +1757,24 @@ export default function AdminPanel() {
               </div>
             </div>
 
-            {!loading && <div className="text-xs text-slate-400 mb-4">Showing {filteredOrders.length} of {orders.length} orders</div>}
+            {!loading && (
+              <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+                <div className="text-xs text-slate-400">
+                  Showing {filteredOrders.length} of {orders.length} orders
+                </div>
+                {orders.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={clearAllOrders}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 border border-red-200 rounded-lg transition-colors cursor-pointer shadow-xs"
+                    title="Delete all test orders for a fresh dashboard"
+                  >
+                    <Trash2 size={13} />
+                    <span>Clear All Test Orders</span>
+                  </button>
+                )}
+              </div>
+            )}
 
             {loading ? (
               <div className="space-y-4"><SkeletonCard /><SkeletonCard /><SkeletonCard /></div>
@@ -1718,7 +1787,7 @@ export default function AdminPanel() {
             ) : (
               <div className="space-y-4">
                 {filteredOrders.map((order) => (
-                  <OrderCard key={order.id || order.order_id} order={order} saving={saving} onUpdate={updateOrder} />
+                  <OrderCard key={order.id || order.order_id} order={order} saving={saving} onUpdate={updateOrder} onDelete={deleteOrder} />
                 ))}
               </div>
             )}
