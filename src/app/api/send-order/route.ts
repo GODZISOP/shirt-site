@@ -263,27 +263,32 @@ export async function POST(req: Request) {
       </div>
     `;
 
-    const adminEmailToUse = getEnv('EMAIL_USER') || 'appointmentstudio@gmail.com';
-    const customerEmailToUse = email || adminEmailToUse;
+    const senderEmail = getEnv('EMAIL_USER') || 'appointmentstudio@gmail.com';
+    const adminRecipient = getEnv('ADMIN_EMAIL') || 'help@demirstudio.com';
+    const customerEmailToUse = email || adminRecipient;
 
-    // Send email to Customer
+    // 1. Send confirmation receipt to Customer
     const customerInfo = await transporter.sendMail({
-      from: `"Demir Studio Orders" <${adminEmailToUse}>`,
+      from: `"Demir Studio Orders" <${senderEmail}>`,
+      replyTo: adminRecipient,
       to: customerEmailToUse,
       subject: `Order Confirmation: ${orderId}`,
       html: customerHtmlContent,
       attachments: attachments
     });
 
-    // Send email to Admin
-    if (adminEmailToUse !== customerEmailToUse) {
+    // 2. Send complete order notification to Admin (help@demirstudio.com)
+    try {
       await transporter.sendMail({
-        from: `"Demir Studio Orders" <${adminEmailToUse}>`,
-        to: adminEmailToUse,
+        from: `"Demir Studio Orders" <${senderEmail}>`,
+        replyTo: customerEmailToUse,
+        to: adminRecipient,
         subject: `[Admin] New Order Received: ${orderId}`,
         html: adminHtmlContent,
         attachments: attachments
       });
+    } catch (adminErr) {
+      console.error("Failed to deliver to admin recipient:", adminErr);
     }
 
     return NextResponse.json({ success: true, messageId: customerInfo.messageId });
